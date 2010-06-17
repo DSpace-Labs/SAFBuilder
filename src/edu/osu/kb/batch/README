@@ -1,0 +1,21 @@
+SimpleArchiveFormat Builder
+Author: Peter Dietz - The Ohio State University Libraries
+
+This is a tool to build SimpleArchiveFormat packages from input csv data for simplified batch processing.
+
+To run this: edit BatchProcess.java so that inputDir, and metaFile match what you are throwing at it.
+
+
+Add these jar's to your library:
+
+au.com.bytecode.opencsv
+http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sf/opencsv/opencsv/2.0.1/opencsv-2.0.1.jar
+
+com.csvreader.csvreader
+http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sourceforge/javacsv/javacsv/2.0/javacsv-2.0.jar
+
+com.generationjava.xmlwriter
+http://mirrors.ibiblio.org/pub/mirrors/maven2/xmlwriter/xmlwriter/2.2/xmlwriter-2.2.jar
+
+org.apache.commons.io
+http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-io/commons-io/1.4/commons-io-1.4.jar

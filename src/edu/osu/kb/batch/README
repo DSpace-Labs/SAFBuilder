@@ -3,6 +3,8 @@ Author: Peter Dietz - The Ohio State University Libraries
 
 This is a tool to build SimpleArchiveFormat packages from input csv data for simplified batch processing.
 
+Check out the Wiki entry: http://fedora-commons.org/confluence/display/DSPACE/Simple+Archive+Format+Packager
+
 To run this: edit BatchProcess.java so that inputDir, and metaFile match what you are throwing at it.
 
 

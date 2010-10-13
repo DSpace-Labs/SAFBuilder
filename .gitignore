@@ -1,3 +1,10 @@
+#NetBeans created
 build.xml
 manifest.mf
 nbproject
+
+#Compiled
+build/
+
+#Local stash for .jars
+lib-files/

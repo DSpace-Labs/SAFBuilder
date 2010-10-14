@@ -1,9 +1,12 @@
 package edu.osu.kb.batch;
 
+
+import com.csvreader.CsvReader;
 import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.*;
 
 public class SAFPackage
 {
@@ -15,9 +18,10 @@ public class SAFPackage
     /**
      * The csv file with the metadata. Assumed that the first row has field names, including filename, and dc.element.qualifier, dc....
      */
-    private InputCSV icsv;
-    private static ArrayList header = new ArrayList();
-    private static List parsedCSV;
+
+    
+    //private static List<String[]> parsedCSV;
+    private CsvReader inputCSV;
 
     /**
      * Default constructor. Main method of this class is processMetaPack. The goal of this is to create a Simple Archive Format
@@ -32,21 +36,26 @@ public class SAFPackage
      * @param inputDir
      * @param metaFile
      */
+    @SuppressWarnings("unchecked")
     private void openCSV(String inputDir, String metaFile)
     {
 
         input = new File(inputDir);
         String absoluteFileName = inputDir + "/" + metaFile;
         try {
-            icsv = new InputCSV(absoluteFileName);
+            inputCSV = new CsvReader(absoluteFileName);
         } catch (Exception e) {
             System.out.println(input.getAbsolutePath());
             e.printStackTrace();
             System.out.println(e.getMessage());
         }
         System.out.println("Opened CSV File:" + absoluteFileName);
-        parsedCSV = icsv.parse();
     }
+
+
+
+
+
 
     /**
      * open metafile
@@ -59,7 +68,7 @@ public class SAFPackage
      * @param pathToDirectory
      * @param metaFileName
      */
-    public void processMetaPack(String pathToDirectory, String metaFileName)
+    public void processMetaPack(String pathToDirectory, String metaFileName) throws IOException
     {
         openCSV(pathToDirectory, metaFileName);
 
@@ -128,24 +137,23 @@ public class SAFPackage
         }
     }
 
-    private void processMetaHeader()
+    private void processMetaHeader() throws IOException
     {
-        String[] firstLine = (String[]) parsedCSV.get(0);
-        for (int j = 0; j < firstLine.length; j++) {
-            header.add(j, firstLine[j]);
-        }
+        inputCSV.readHeaders();
+    }
+    
+
+    private String getHeaderField(int columnNum) throws IOException
+    {
+        return inputCSV.getHeader(columnNum);
     }
 
-    private String getHeaderField(int columnNum)
+    private void processMetaBody() throws IOException
     {
-        return header.get(columnNum).toString();
-    }
+        int rowNumber = 1;
 
-    private void processMetaBody()
-    {
-        int contentRowStart = 1;
-        for (int i = contentRowStart; i < parsedCSV.size(); i++) {
-            processMetaBodyRow(i);
+        while(inputCSV.readRecord()) {
+            processMetaBodyRow(rowNumber++);
         }
     }
 
@@ -158,12 +166,12 @@ public class SAFPackage
         try {
             BufferedWriter contentsWriter = new BufferedWriter(new FileWriter(contentsFile));
 
-            String[] currentLine = (String[]) parsedCSV.get(rowNumber);
+            String[] currentLine = inputCSV.getValues();
 
             OutputXML xmlWriter = new OutputXML(dcFileName);
             xmlWriter.start();
 
-            for (int j = 0; j < header.size(); j++) {
+            for (int j = 0; j < inputCSV.getHeaderCount(); j++) {
                 if (j >= currentLine.length) {
                     break;
                 }
@@ -173,9 +181,9 @@ public class SAFPackage
 
                 if (getHeaderField(j).contentEquals("filename")) {
                     processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j]);
-                } else if (getHeaderField(j).contains("filename-")) {
+                } else if (getHeaderField(j).contains("filename---")) {
                     //This file is destined for a bundle
-                    String[] filenameParts = getHeaderField(j).split("-");
+                    String[] filenameParts = getHeaderField(j).split("---");
                     String bundle = filenameParts[1];
                     processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], bundle);
                 } else {
@@ -200,7 +208,7 @@ public class SAFPackage
     private void processMetaBodyRowField(String field_header, String field_value, OutputXML xmlWriter)
     {
         // process Metadata field. Multiple entries can be specified with seperator character
-        String[] fieldValues = field_value.split(";");
+        String[] fieldValues = field_value.split("\\|\\|");
         for (int valueNum = 0; valueNum < fieldValues.length; valueNum++) {
             if (fieldValues[valueNum].trim().length() > 0) {
                 xmlWriter.writeOneDC(field_header, fieldValues[valueNum].trim());
@@ -235,10 +243,14 @@ public class SAFPackage
      */
     private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String bundleName)
     {
-        String[] files = filenames.split(";");
+        String[] files = filenames.split("\\|\\|");
+
+        
         for (int j = 0; j < files.length; j++) {
+            String currentFile = files[j].trim();
             try {
-                FileUtils.copyFileToDirectory(new File(input.getPath() + "/" + files[j]), new File(itemDirectory));
+
+                FileUtils.copyFileToDirectory(new File(input.getPath() + "/" + currentFile), new File(itemDirectory));
                 incrementFileHit(files[j]);
 
                 String contentsRow = files[j];
@@ -249,7 +261,7 @@ public class SAFPackage
 
                 contentsWriter.newLine();
             } catch (FileNotFoundException fnf) {
-                System.out.println("There is no file named " + files[j] + " in " + input.getPath() + " while making " + itemDirectory);
+                System.out.println("There is no file named " + currentFile + " in " + input.getPath() + " while making " + itemDirectory);
             } catch (IOException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }

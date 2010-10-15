@@ -1,26 +1,17 @@
 package edu.osu.kb.batch;
 
-
 import com.csvreader.CsvReader;
 import org.apache.commons.io.FileUtils;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.text.*;
 
 public class SAFPackage
 {
+    private String seperatorRegex = "\\|\\|";   // Using double pipe || to seperate multiple values in a field.
 
-    /**
-     * Directory of this input collection.
-     */
+    // Directory on file system of this input collection
     private File input;
-    /**
-     * The csv file with the metadata. Assumed that the first row has field names, including filename, and dc.element.qualifier, dc....
-     */
 
-    
-    //private static List<String[]> parsedCSV;
+    // Storage of the csv data.
     private CsvReader inputCSV;
 
     /**
@@ -36,7 +27,6 @@ public class SAFPackage
      * @param inputDir
      * @param metaFile
      */
-    @SuppressWarnings("unchecked")
     private void openCSV(String inputDir, String metaFile)
     {
 
@@ -51,11 +41,6 @@ public class SAFPackage
         }
         System.out.println("Opened CSV File:" + absoluteFileName);
     }
-
-
-
-
-
 
     /**
      * open metafile
@@ -208,7 +193,7 @@ public class SAFPackage
     private void processMetaBodyRowField(String field_header, String field_value, OutputXML xmlWriter)
     {
         // process Metadata field. Multiple entries can be specified with seperator character
-        String[] fieldValues = field_value.split("\\|\\|");
+        String[] fieldValues = field_value.split(seperatorRegex);
         for (int valueNum = 0; valueNum < fieldValues.length; valueNum++) {
             if (fieldValues[valueNum].trim().length() > 0) {
                 xmlWriter.writeOneDC(field_header, fieldValues[valueNum].trim());
@@ -243,17 +228,16 @@ public class SAFPackage
      */
     private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String bundleName)
     {
-        String[] files = filenames.split("\\|\\|");
-
+        String[] files = filenames.split(seperatorRegex);
         
         for (int j = 0; j < files.length; j++) {
             String currentFile = files[j].trim();
             try {
 
                 FileUtils.copyFileToDirectory(new File(input.getPath() + "/" + currentFile), new File(itemDirectory));
-                incrementFileHit(files[j]);
+                incrementFileHit(currentFile); //TODO fix file counter to deal with multifiles
 
-                String contentsRow = files[j];
+                String contentsRow = currentFile;
                 if (bundleName.length() > 0) {
                     contentsRow = contentsRow.concat("\tbundle:" + bundleName);
                 }
@@ -263,7 +247,7 @@ public class SAFPackage
             } catch (FileNotFoundException fnf) {
                 System.out.println("There is no file named " + currentFile + " in " + input.getPath() + " while making " + itemDirectory);
             } catch (IOException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                e.printStackTrace();
             }
         }
     }

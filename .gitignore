@@ -5,6 +5,7 @@ nbproject
 
 #Compiled
 build/
+dist/
 
 #Local stash for .jars
 lib-files/

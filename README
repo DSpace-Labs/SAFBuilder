@@ -1,23 +1,52 @@
 SimpleArchiveFormat Builder
+===========================
+
+A standalone Java tool to build Simple Archive Format packages which are used to easily ingest items into a document management system, such as an institutional repository like DSpace. The use case satisfied by this SAFBuilder is that someone has a spreadsheet filled with metadata as well as content files such as images and PDFs and wishes to then bulk import this into a document management system. Users find it easy to create spreadsheets, this tool makes it easy to then import it into their system.
+
 Author: Peter Dietz - The Ohio State University Libraries
 
-This is a tool to build SimpleArchiveFormat packages from input csv data for simplified batch processing.
+[Wiki entry on Simple Archive Format Packager](https://wiki.duraspace.org/display/DSPACE/Simple+Archive+Format+Packager "Simple Archive Format Package wiki entry")
 
-Check out the Wiki entry: http://fedora-commons.org/confluence/display/DSPACE/Simple+Archive+Format+Packager
+Input
+-----
+A spreadsheet (.csv) with the following columns:
+* filename for the bitstream/file
+* metadata with namespace.element.(qualifer). Examples would be: dc.description or dc.contributor.author
+![Image of a sample input spreadsheet with metadata](https://wiki.duraspace.org/download/attachments/20809267/metadata-spreadsheet.png?version=1&modificationDate=1276806916424 "sample spreadsheet with metadata")
 
-To run this: edit BatchProcess.java so that inputDir, and metaFile match what you are throwing at it.
 
+Output
+------
+    SimpleArchiveFormat/
+        item_000/
+            dublin_core.xml         -- qualified Dublin Core metadata for metadata fields belonging to the dc schema
+            metadata_[prefix].xml   -- metadata in another schema, the prefix is the name of the schema as registered with the metadata registry
+            contents                -- text file containing one line per filename
+            file_1.doc              -- files to be added as bitstreams to the item
+            file_2.pdf
+        item_001/
+            dublin_core.xml
+            contents
+            file_1.png
+            ...
 
-Add these jar's to your library:
+Instructions
+------------
+The commands below will: check out the code from Git, download the external java libraries used to make the tool, compile the source code, and execute it. The exact commands below are specific to Linux, other users should be able to deduce what it means.
+    git clone git://github.com/peterdietz/SAFBuilder.git
+    cd SAFBuilder
+    wget http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sourceforge/javacsv/javacsv/2.0/javacsv-2.0.jar
+    wget http://mirrors.ibiblio.org/pub/mirrors/maven2/xmlwriter/xmlwriter/2.2/xmlwriter-2.2.jar
+    wget http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-io/commons-io/1.4/commons-io-1.4.jar
+    mkdir classes
+    javac -classpath javacsv-2.0.jar:commons-io-1.4.jar:xmlwriter-2.2.jar src/edu/osu/kb/batch/*.java -d classes
+    java -cp classes edu.osu.kb.batch.BatchProcess
 
-au.com.bytecode.opencsv
-http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sf/opencsv/opencsv/2.0.1/opencsv-2.0.1.jar
+With no arguments the system will print out the help.
+> USAGE: BatchProcess /path/to/directory metadatafilename.csv  
+> Hint -- directory: Use absolute path and no trailing slashes  
+> Hint -- metadatafilename: needs to be in the directory, as do the content files  
 
-com.csvreader.csvreader
-http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sourceforge/javacsv/javacsv/2.0/javacsv-2.0.jar
+Included is some sample data to get started using the tool.
+    java -cp classes:javacsv-2.0.jar:commons-io-1.4.jar:xmlwriter-2.2.jar edu.osu.kb.batch.BatchProcess /home/peter/NetBeansProjects/SAFBuilder/src/edu/osu/kb/sample_data AAA_batch-metadata.csv
 
-com.generationjava.xmlwriter
-http://mirrors.ibiblio.org/pub/mirrors/maven2/xmlwriter/xmlwriter/2.2/xmlwriter-2.2.jar
-
-org.apache.commons.io
-http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-io/commons-io/1.4/commons-io-1.4.jar

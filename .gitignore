@@ -1,7 +1,9 @@
-#NetBeans created
+#IDE created
 build.xml
 manifest.mf
 nbproject
+.idea/
+*.iml
 
 #Compiled
 build/

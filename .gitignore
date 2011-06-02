@@ -11,3 +11,6 @@ classes/
 #Local stash for .jars
 lib-files/
 *.jar
+
+#Created Output, only really used if you build the sample_data.
+SimpleArchiveFormat/

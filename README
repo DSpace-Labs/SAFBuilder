@@ -50,3 +50,4 @@ With no arguments the system will print out the help.
 Included is some sample data to get started using the tool.
     java -cp classes:javacsv-2.0.jar:commons-io-1.4.jar:xmlwriter-2.2.jar edu.osu.kb.batch.BatchProcess /home/peter/NetBeansProjects/SAFBuilder/src/edu/osu/kb/sample_data AAA_batch-metadata.csv
 
+Running the tool against the sample data will create a directory "SimpleArchiveFormat" in the directory you previously specified. In this example it is: /home/peter/NetBeansProjects/SAFBuilder/src/edu/kb/sample_data/SimpleArchiveFormat, and the contents of the directory SimpleArchiveFormat is of the format of what was described above in the "Output" section.

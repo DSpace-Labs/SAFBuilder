@@ -6,6 +6,8 @@ nbproject
 #Compiled
 build/
 dist/
+classes/
 
 #Local stash for .jars
 lib-files/
+*.jar

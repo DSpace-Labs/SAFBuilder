@@ -206,12 +206,11 @@ public class SAFPackage
                 }
 
                 if (getHeaderField(j).contentEquals("filename")) {
-                    processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j]);
-                } else if (getHeaderField(j).contains("filename---")) {
-                    //This file is destined for a bundle
-                    String[] filenameParts = getHeaderField(j).split("---");
-                    String bundle = filenameParts[1];
-                    processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], bundle);
+                    processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], "");
+                } else if (getHeaderField(j).contains("filename__")) {
+                    //This file has extra parameters, such as being destined for a bundle, or specifying primary
+                    String[] filenameParts = getHeaderField(j).split("__", 2);
+                    processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], filenameParts[1]);
                 } else {
                     processMetaBodyRowField(getHeaderField(j), currentLine[j], xmlWriter);
                 }
@@ -246,17 +245,6 @@ public class SAFPackage
     }
 
     /**
-     * Processes a file, without specifying the bundle, it will go into the default bundle.
-     * @param contentsWriter Writer to the contents file which tracks the files to ingest for item
-     * @param itemDirectory Absolute path to the directory to put the files in
-     * @param filenames The filename or filenames for this row. If multiple, then separate with separator character.
-     */
-    private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames)
-    {
-        processMetaBodyRowFile(contentsWriter, itemDirectory, filenames, "");
-    }
-
-    /**
      * Processes the files for the filename column.
      * open contents
      * for-each files as file
@@ -266,9 +254,9 @@ public class SAFPackage
      * @param contentsWriter Writer to the contents file which tracks the files to ingest for item
      * @param itemDirectory Absolute path to the directory to put the files in
      * @param filenames String with filename / filenames separated by separator.
-     * @param bundleName Specify a bundle for the files. Blank value means default.
+     * @param fileParameters Parameters for these files. Blank value means nothing special needs to happen.
      */
-    private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String bundleName)
+    private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String fileParameters)
     {
         String[] files = filenames.split(seperatorRegex);
         
@@ -280,8 +268,13 @@ public class SAFPackage
                 incrementFileHit(currentFile); //TODO fix file counter to deal with multifiles
 
                 String contentsRow = currentFile;
-                if (bundleName.length() > 0) {
-                    contentsRow = contentsRow.concat("\tbundle:" + bundleName);
+                if (fileParameters.length() > 0) {
+                    // BUNDLE:SOMETHING or BUNDLE:SOMETHING__PRIMARY:TRUE or PRIMARY:TRUE
+                    String[] parameters = fileParameters.split("__");
+                    for(String parameter : parameters) {
+                        contentsRow = contentsRow.concat("\t" + parameter.trim());
+                    }
+
                 }
                 contentsWriter.append(contentsRow);
 

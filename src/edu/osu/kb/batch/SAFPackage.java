@@ -24,14 +24,17 @@ public class SAFPackage
 
     /**
      * Gets a "handle" on the metadata file
-     * @param inputDir
-     * @param metaFile
+     * @param inputDir Path to input directory.
+     * @param metaFile Filename of the CSV
      */
     private void openCSV(String inputDir, String metaFile)
     {
-
         input = new File(inputDir);
-        String absoluteFileName = inputDir + "/" + metaFile;
+
+        if(!inputDir.endsWith("\\/")) {
+            inputDir = inputDir + "/";
+        }
+        String absoluteFileName = inputDir + metaFile;
         try {
             inputCSV = new CsvReader(absoluteFileName);
         } catch (Exception e) {
@@ -50,8 +53,9 @@ public class SAFPackage
      *      make contents file with entries for each filename
      *      foreach(metarow.columns as column)
      *          add meta entry to metadata xml
-     * @param pathToDirectory
-     * @param metaFileName
+     * @param pathToDirectory Path to the directory containing the content files and CSV
+     * @param metaFileName Filename of the CSV
+     * @throws java.io.IOException If the files can't be found or created.
      */
     public void processMetaPack(String pathToDirectory, String metaFileName) throws IOException
     {
@@ -83,9 +87,15 @@ public class SAFPackage
         }
 
         newDirectory.mkdir();
+        System.out.println("Output directory is: " + newDirectory.getAbsolutePath());
     }
+
     private static String[][] fileListFake;
 
+    /**
+     * Make a list of all the files in the input directory.
+     * Initialize the count for each file found to have zero usages.
+     */
     private void scanAllFiles()
     {
         String[] files = input.list();
@@ -97,6 +107,11 @@ public class SAFPackage
         }
     }
 
+    /**
+     * Marks that the filename being referred to is counted as being used.
+     * This method is used for scanning the files in the directory for ones that are used/unused.
+     * @param filename Name of file referred to in CSV
+     */
     private void incrementFileHit(String filename)
     {
         int i = 0;
@@ -113,6 +128,11 @@ public class SAFPackage
         }
     }
 
+    /**
+     * Displays the files that exist in the directory that have been used the specified number of times.
+     * Used for finding files that have not been used.
+     * @param numHits The specified number of times the file should have been used. Value of 0 means unused file.
+     */
     private void printFiles(Integer numHits)
     {
         for (int i = 0; i < fileListFake.length; i++) {
@@ -122,19 +142,35 @@ public class SAFPackage
         }
     }
 
+    /**
+     * Scans the Header row of the metadata csv to usable object.
+     * @throws IOException If the CSV can't be found or read
+     */
     private void processMetaHeader() throws IOException
     {
         inputCSV.readHeaders();
     }
-    
 
+    /**
+     * Gets the value for a specified header column
+     * @param columnNum The integer value
+     * @return Text value for the specified header column
+     * @throws IOException If the CSV can't be found or read
+     */
     private String getHeaderField(int columnNum) throws IOException
     {
         return inputCSV.getHeader(columnNum);
     }
 
+    /**
+     * Method to process the content/body of the metadata csv.
+     * Delegate the work of processing each row to other methods.
+     * Does not process the header.
+     * @throws IOException If the CSV can't be found or read
+     */
     private void processMetaBody() throws IOException
     {
+        // The implementation of processing CSV starts counting from 0. 0 = header, 1..n = body/content
         int rowNumber = 1;
 
         while(inputCSV.readRecord()) {
@@ -142,6 +178,11 @@ public class SAFPackage
         }
     }
 
+    /**
+     * Processes a row in the metadata CSV.
+     * Processing a row means using all of the metadata fields, and adding all of the files mentioned to the package.
+     * @param rowNumber Row in the CSV.
+     */
     private void processMetaBodyRow(int rowNumber)
     {
         String currentItemDirectory = makeNewDirectory(rowNumber);
@@ -184,15 +225,15 @@ public class SAFPackage
 
     /**
      * Adds the values for the specific piece of metadata to the output. Accepts
-     * multiple values per value so long as they are separated by ;
+     * multiple values per value so long as they are separated by the separator character
      *
      * @param field_header Field name, such as dc.description or dc.description.abstract
-     * @param field_value Metadata value or values. Multiple values can be separated by a ";"
-     * @param xmlWriter
+     * @param field_value Metadata value or values. Multiple values can be separated by a separator character.
+     * @param xmlWriter The xml file that the data is being written to
      */
     private void processMetaBodyRowField(String field_header, String field_value, OutputXML xmlWriter)
     {
-        // process Metadata field. Multiple entries can be specified with seperator character
+        // process Metadata field. Multiple entries can be specified with separator character
         String[] fieldValues = field_value.split(seperatorRegex);
         for (int valueNum = 0; valueNum < fieldValues.length; valueNum++) {
             if (fieldValues[valueNum].trim().length() > 0) {
@@ -205,10 +246,10 @@ public class SAFPackage
     }
 
     /**
-     * A file that doesn't need to go into a special bundle, it will go into Original bundle
-     * @param contentsWriter
-     * @param itemDirectory
-     * @param filenames
+     * Processes a file, without specifying the bundle, it will go into the default bundle.
+     * @param contentsWriter Writer to the contents file which tracks the files to ingest for item
+     * @param itemDirectory Absolute path to the directory to put the files in
+     * @param filenames The filename or filenames for this row. If multiple, then separate with separator character.
      */
     private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames)
     {
@@ -216,15 +257,16 @@ public class SAFPackage
     }
 
     /**
+     * Processes the files for the filename column.
      * open contents
      * for-each files as file
      *      copy file into directory
      *      add file to contents
      *
-     * @param contentsWriter
-     * @param itemDirectory
-     * @param filenames
-     * @param bundleName
+     * @param contentsWriter Writer to the contents file which tracks the files to ingest for item
+     * @param itemDirectory Absolute path to the directory to put the files in
+     * @param filenames String with filename / filenames separated by separator.
+     * @param bundleName Specify a bundle for the files. Blank value means default.
      */
     private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String bundleName)
     {
@@ -253,9 +295,10 @@ public class SAFPackage
     }
 
     /**
+     * Makes a new directory for the item being processed
      * /path/to/input/SimpleArchiveFormat/item_27/
-     * @param itemNumber
-     * @return
+     * @param itemNumber Iterator for the item being processed, Starts from zero.
+     * @return Absolute path to the newly created directory
      */
     private String makeNewDirectory(int itemNumber)
     {

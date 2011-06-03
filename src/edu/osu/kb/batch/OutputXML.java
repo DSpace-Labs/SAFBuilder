@@ -50,8 +50,7 @@ public class OutputXML
      * Accepts only one dublin core value
      * dc.description dc.description.abstract
      * @param dcField Full dublin core field name -- ex: dc.description OR dc.description.abstract
-     * @param metaValue
-     * @Requires metaValue.length > 0
+     * @param metaValue value of the metadata. Should not be blank.
      */
     public void writeOneDC(String dcField, String metaValue)
     {

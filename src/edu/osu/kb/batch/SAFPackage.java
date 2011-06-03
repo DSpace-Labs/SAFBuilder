@@ -2,7 +2,9 @@ package edu.osu.kb.batch;
 
 import com.csvreader.CsvReader;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.vfs.*;
 import java.io.*;
+import java.util.*;
 
 public class SAFPackage
 {
@@ -211,6 +213,11 @@ public class SAFPackage
                     //This file has extra parameters, such as being destined for a bundle, or specifying primary
                     String[] filenameParts = getHeaderField(j).split("__", 2);
                     processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], filenameParts[1]);
+                } else if (getHeaderField(j).contains("filegroup")) {
+
+                    readTARGZ(currentItemDirectory, currentLine[j]);
+
+
                 } else {
                     processMetaBodyRowField(getHeaderField(j), currentLine[j], xmlWriter);
                 }
@@ -314,5 +321,45 @@ public class SAFPackage
         File newDirectory = new File(input.getPath() + "/SimpleArchiveFormat/item_" + itemNumber);
         newDirectory.mkdir();
         return newDirectory.getAbsolutePath();
+    }
+
+    /**
+     * Reads a .tar.gz file that would contain the files for the metadata row.
+     *
+     *
+     * @param outputPath
+     * @param filename
+     * @throws FileSystemException
+     */
+    private void readTARGZ(String outputPath, String filename) throws FileSystemException {
+        ArrayList<FileObject> filesCollection = new ArrayList<FileObject>();
+
+        FileSystemManager fileSystemManager = VFS.getManager();
+        FileObject tarGZFile = fileSystemManager.resolveFile("tgz://" + input.getPath() + "/" + filename);
+        // List the children of the Jar file
+        FileObject[] children = tarGZFile.getChildren();
+        System.out.println( "Children of " + tarGZFile.getName().getURI() );
+        for ( int i = 0; i < children.length; i++ )
+        {
+            System.out.println( children[ i ].getName().getBaseName() );
+            FileObject[] grandChildren = children[i].getChildren();
+            System.out.println("Grandchildren of:" +  children[i].getName().getBaseName());
+            for(int j= 0; j< grandChildren.length; j++) {
+                if(grandChildren[j].getName().getBaseName().equals(".htaccess")) {
+                    continue;
+                }
+                System.out.println(grandChildren[j].getName().getBaseName());
+                //System.out.println(grandChildren[j].toString());
+                filesCollection.add(grandChildren[j]);
+            }
+        }
+
+        Collections.sort(filesCollection, new AlphanumComparator());
+
+        // Using reverse depend on your stance on which order to sort bitstreams from DS-749
+        Collections.reverse(filesCollection);
+        // TODO: Connect with copy file processor to process the file(s).
+        // processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String fileParameters)
+
     }
 }

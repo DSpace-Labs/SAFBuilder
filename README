@@ -35,10 +35,6 @@ Instructions
 The commands below will: check out the code from Git, download the external java libraries used to make the tool, compile the source code, and execute it. The exact commands below are specific to Linux, other users should be able to deduce what it means.
     git clone git://github.com/peterdietz/SAFBuilder.git
     cd SAFBuilder
-    wget http://mirrors.ibiblio.org/pub/mirrors/maven2/net/sourceforge/javacsv/javacsv/2.0/javacsv-2.0.jar
-    wget http://mirrors.ibiblio.org/pub/mirrors/maven2/xmlwriter/xmlwriter/2.2/xmlwriter-2.2.jar
-    wget http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-io/commons-io/1.4/commons-io-1.4.jar
-    mkdir classes
     javac -classpath javacsv-2.0.jar:commons-io-1.4.jar:xmlwriter-2.2.jar src/edu/osu/kb/batch/*.java -d classes
     java -cp classes edu.osu.kb.batch.BatchProcess
 
@@ -51,3 +47,6 @@ Included is some sample data to get started using the tool.
     java -cp classes:javacsv-2.0.jar:commons-io-1.4.jar:xmlwriter-2.2.jar edu.osu.kb.batch.BatchProcess /home/peter/NetBeansProjects/SAFBuilder/src/edu/osu/kb/sample_data AAA_batch-metadata.csv
 
 Running the tool against the sample data will create a directory "SimpleArchiveFormat" in the directory you previously specified. In this example it is: /home/peter/NetBeansProjects/SAFBuilder/src/edu/kb/sample_data/SimpleArchiveFormat, and the contents of the directory SimpleArchiveFormat is of the format of what was described above in the "Output" section.
+
+Additionally, there are installation guides for installing the SAFBuilder for your Operating System (Windows + Linux).
+https://github.com/peterdietz/SAFBuilder/wiki

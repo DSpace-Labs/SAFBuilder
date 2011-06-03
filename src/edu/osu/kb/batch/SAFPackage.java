@@ -267,14 +267,13 @@ public class SAFPackage
                 FileUtils.copyFileToDirectory(new File(input.getPath() + "/" + currentFile), new File(itemDirectory));
                 incrementFileHit(currentFile); //TODO fix file counter to deal with multifiles
 
-                String contentsRow = currentFile;
+                String contentsRow = getFilenameName(currentFile);
                 if (fileParameters.length() > 0) {
                     // BUNDLE:SOMETHING or BUNDLE:SOMETHING__PRIMARY:TRUE or PRIMARY:TRUE
                     String[] parameters = fileParameters.split("__");
                     for(String parameter : parameters) {
                         contentsRow = contentsRow.concat("\t" + parameter.trim());
                     }
-
                 }
                 contentsWriter.append(contentsRow);
 
@@ -284,6 +283,23 @@ public class SAFPackage
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Obtain just the filename from the string. The string could include some path information, which is un-needed
+     * @param filenameWithPath The filename, may or may not include paths
+     * @return The filename with no path or slashes.
+     */
+    private String getFilenameName(String filenameWithPath) {
+        if(filenameWithPath.contains("\\")) {
+            String[] pathSegments = filenameWithPath.split("\\");
+            return pathSegments[pathSegments.length-1];
+        } else if(filenameWithPath.contains("/")) {
+            String[] pathSegments = filenameWithPath.split("/");
+            return pathSegments[pathSegments.length-1];
+        } else {
+            return filenameWithPath;
         }
     }
 

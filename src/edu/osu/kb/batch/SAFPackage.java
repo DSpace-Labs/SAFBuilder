@@ -214,10 +214,8 @@ public class SAFPackage
                     String[] filenameParts = getHeaderField(j).split("__", 2);
                     processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], filenameParts[1]);
                 } else if (getHeaderField(j).contains("filegroup")) {
-
-                    readTARGZ(currentItemDirectory, currentLine[j]);
-
-
+                    processMetaBodyRowFilegroup(contentsWriter, currentItemDirectory, currentLine[j], "");
+                    //TODO Allow for fileNameParts -- if you needed the file group to be added to a specific bundle
                 } else {
                     processMetaBodyRowField(getHeaderField(j), currentLine[j], xmlWriter);
                 }
@@ -327,11 +325,13 @@ public class SAFPackage
      * Reads a .tar.gz file that would contain the files for the metadata row.
      *
      *
-     * @param outputPath
+     * @param itemDirectory
      * @param filename
+     * @param fileParameters
      * @throws FileSystemException
      */
-    private void readTARGZ(String outputPath, String filename) throws FileSystemException {
+    @SuppressWarnings("unchecked")
+    private void processMetaBodyRowFilegroup(BufferedWriter contentsWriter, String itemDirectory, String filename, String fileParameters) throws FileSystemException {
         ArrayList<FileObject> filesCollection = new ArrayList<FileObject>();
 
         FileSystemManager fileSystemManager = VFS.getManager();
@@ -358,8 +358,38 @@ public class SAFPackage
 
         // Using reverse depend on your stance on which order to sort bitstreams from DS-749
         Collections.reverse(filesCollection);
-        // TODO: Connect with copy file processor to process the file(s).
-        // processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String fileParameters)
 
+        // TODO This method needs to be tested. Processing file groups in general needs to be tested.
+        for(FileObject fileObject: filesCollection) {
+            addFileObjectToItem(contentsWriter, fileObject, fileSystemManager.resolveFile("file://" + itemDirectory), fileParameters);
+        }
+    }
+
+    /**
+     * Move the commons "FileObject" to the item's directory.
+     * @param contentsWriter
+     * @param destinationDirectory
+     */
+    private void addFileObjectToItem(BufferedWriter contentsWriter, FileObject fileObject, FileObject destinationDirectory, String fileParameters) {
+        try {
+            fileObject.moveTo(destinationDirectory);
+            incrementFileHit(fileObject.getName().getBaseName()); //TODO Don't know if this file would exist
+
+            String contentsRow = fileObject.getName().getBaseName();
+            if (fileParameters.length() > 0) {
+                // BUNDLE:SOMETHING or BUNDLE:SOMETHING__PRIMARY:TRUE or PRIMARY:TRUE
+                String[] parameters = fileParameters.split("__");
+                for (String parameter : parameters) {
+                    contentsRow = contentsRow.concat("\t" + parameter.trim());
+                }
+            }
+            contentsWriter.append(contentsRow);
+
+            contentsWriter.newLine();
+        } catch (FileNotFoundException fnf) {
+            System.out.println("There is no file named " + fileObject.getName().getBaseName() + " while making " + destinationDirectory.getName().getBaseName());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

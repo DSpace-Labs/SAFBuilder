@@ -3,6 +3,7 @@ package edu.osu.kb.batch;
 import com.csvreader.CsvReader;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import org.apache.commons.io.FileUtils;
 
 
 import java.io.*;
@@ -56,17 +57,37 @@ public class PDFProvenanceStamper {
 
         //Henry's
         // 0 xmlBody, 1 filename, 2 command
-        final int columnProvenance = 0;
-        final int columnLicensing = 1;
-        final int columnFileName = 2;
+        final int columnPushDown = 0;
+        final int columnProvenance = 1;
+        final int columnLicensing = 2;
+        final int columnFileName = 3;
+
 
         String provenanceText = currentLine[columnProvenance].trim();
         String provenanceLicense = currentLine[columnLicensing].trim();
         String pathToPDF = basePDFPath + "/" + currentLine[columnFileName];
 
+        Float pushDownAdditional = Float.parseFloat(currentLine[columnPushDown].trim());
+
+        // By default we push 25 units lower than bottom. We can allow the user to push it down slightly more.
+        // pushdownAdditional of 0 does nothing, 1 then down 1, 2 then down 2
+        float pushDown = -25f;
+        pushDown = pushDown - pushDownAdditional;
+
         //Now add the provenanceText to the footer of the PDF
-        PdfReader pdfReader = new PdfReader(pathToPDF);
-        PdfStamper pdfStamper = new PdfStamper(pdfReader, new FileOutputStream(pathToPDF+".new.pdf"));
+
+        File originalPDF = new File(pathToPDF);
+        File archivePDF = new File(pathToPDF+".no-citation-backup.pdf");
+
+        if(originalPDF.exists() && ! archivePDF.exists()) {
+            FileUtils.moveFile(originalPDF, archivePDF);
+            FileUtils.waitFor(archivePDF, 1);
+        }
+
+
+
+        PdfReader pdfReader = new PdfReader(pathToPDF+".no-citation-backup.pdf");
+        PdfStamper pdfStamper = new PdfStamper(pdfReader, new FileOutputStream(pathToPDF));
         BaseFont bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
 
 
@@ -75,12 +96,27 @@ public class PDFProvenanceStamper {
         PdfDocument pdfDocument = content.getPdfDocument();
         int fontSize = 7;
 
-        Float characterWidth = (pdfDocument.right() - pdfDocument.left())/fontSize;
-        int widthBuffer = 20;
-        if(provenanceText.length() > characterWidth + widthBuffer ) {
+        int widthBuffer = 10;
+
+
+
+        Float characterWidth = (pdfDocument.right() - pdfDocument.left() - widthBuffer)/fontSize;
+
+        if(provenanceText.length() > characterWidth  ) {
             fontSize--;
-            System.out.println(pathToPDF + " has a long provenance("+provenanceText.length()+"), we are reducing the font size. CW:"+characterWidth);
+            //System.out.println(pathToPDF + " has a long provenance("+provenanceText.length()+"), we are reducing the font size. CW:"+characterWidth);
         }
+
+        if(provenanceText.length() > characterWidth + 40 ) {
+            fontSize--;
+            System.out.println(pathToPDF + " has a long provenance("+provenanceText.length()+"), we are reducing the font size again. CW:"+characterWidth);
+        }
+
+        if(provenanceText.length() > characterWidth + 60 ) {
+            fontSize--;
+            System.out.println(pathToPDF + " has a long provenance("+provenanceText.length()+"), we are reducing the font size again again. CW:"+characterWidth);
+        }
+
 
         content.setFontAndSize(bf_helv, fontSize);
         content.setLineWidth(0f);
@@ -88,8 +124,17 @@ public class PDFProvenanceStamper {
         content.moveTo(0, pdfDocument.bottom());
 
         content.beginText();
-        content.showTextAligned(PdfContentByte.ALIGN_LEFT, provenanceText, pdfDocument.leftMargin()-20, pdfDocument.bottom()+8-25, 0);
-        content.showTextAligned(PdfContentByte.ALIGN_LEFT, provenanceLicense, pdfDocument.leftMargin()-20, pdfDocument.bottom()-25, 0);
+
+        content.showTextAligned(PdfContentByte.ALIGN_LEFT, provenanceText, pdfDocument.leftMargin()-20, pdfDocument.bottom()+8+pushDown, 0);
+        content.showTextAligned(PdfContentByte.ALIGN_LEFT, provenanceLicense, pdfDocument.leftMargin()-20, pdfDocument.bottom()+pushDown, 0);
+
+        /*BarcodeQRCode qrCode = new BarcodeQRCode(provenanceText + " " + provenanceLicense, Math.round(pdfDocument.left()), Math.round(pdfDocument.bottom()), null);
+         *Image qrImage = qrCode.getImage();
+         *qrImage.setAbsolutePosition(pdfDocument.left(), pdfDocument.bottom());
+         *content.addImage(qrImage);
+         */
+
+
         content.endText();
         pdfStamper.close();
     }

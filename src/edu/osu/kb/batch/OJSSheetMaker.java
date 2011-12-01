@@ -54,9 +54,9 @@ public class OJSSheetMaker {
 
         //Henry's
         // 0 xmlBody, 1 filename, 2 command
-        final int columnXmlBody = 0;
-        final int columnXmlFileName = 1;
-        final int columnCommand = 2;
+        final int columnXmlBody = 4;
+        final int columnXmlFileName = 5;
+        final int columnCommand = 6;
 
         String xmlBody = currentLine[columnXmlBody];
         String fileName = currentLine[columnXmlFileName];

@@ -266,9 +266,19 @@ public class SAFPackage
         String[] files = filenames.split(seperatorRegex);
         
         for (int j = 0; j < files.length; j++) {
-            String[] filenameParts = files[j].trim().split("__", 2);
+            /* Trim whitespace and add a __ at the end to avoid array out of bounds exception
+             * on the filenameParts[1] reference. (Could have also done if.. else..)
+             * filenameParts[0] = the actual file name
+             * filenameParts[1] = the remaining SAF parameters, still delimited by "__"
+             */
+            String[] filenameParts = (files[j].trim() + "__").split("__", 2);
             String currentFile = filenameParts[0];
-            String fileParameters = globalFileParameters + "__" + filenameParts[1];
+            
+            /* This takes the parameters as specified at the header row and adds them to the
+             * parameters for this individual file. The order is important here: by taking
+             * the local parameters first, they are able to override the global params.
+             */
+            String fileParameters = filenameParts[1] + "__" + globalFileParameters;
 
             try {
 
@@ -277,7 +287,7 @@ public class SAFPackage
 
                 String contentsRow = getFilenameName(currentFile);
                 if (fileParameters.length() > 0) {
-                    // BUNDLE:SOMETHING or BUNDLE:SOMETHING__PRIMARY:TRUE or PRIMARY:TRUE
+                    // bundle:SOMETHING, primary:TRUE or description:Something, or any combination with "__" in between
                     String[] parameters = fileParameters.split("__");
                     for(String parameter : parameters) {
                         contentsRow = contentsRow.concat("\t" + parameter.trim());

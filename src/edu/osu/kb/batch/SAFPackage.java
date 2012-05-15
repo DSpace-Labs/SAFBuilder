@@ -261,12 +261,15 @@ public class SAFPackage
      * @param filenames String with filename / filenames separated by separator.
      * @param fileParameters Parameters for these files. Blank value means nothing special needs to happen.
      */
-    private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String fileParameters)
+    private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String globalFileParameters)
     {
         String[] files = filenames.split(seperatorRegex);
         
         for (int j = 0; j < files.length; j++) {
-            String currentFile = files[j].trim();
+            String[] filenameParts = files[j].trim().split("__", 2);
+            String currentFile = filenameParts[0];
+            String fileParameters = globalFileParameters + "__" + filenameParts[1];
+
             try {
 
                 FileUtils.copyFileToDirectory(new File(input.getPath() + "/" + currentFile), new File(itemDirectory));

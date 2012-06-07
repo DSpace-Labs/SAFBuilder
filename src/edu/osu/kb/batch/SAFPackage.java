@@ -215,8 +215,9 @@ public class SAFPackage
                     String[] filenameParts = getHeaderField(j).split("__", 2);
                     processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], filenameParts[1]);
                 } else if (getHeaderField(j).contains("filegroup")) {
-                    processMetaBodyRowFilegroup(contentsWriter, currentItemDirectory, currentLine[j], "");
-                    //TODO Allow for fileNameParts -- if you needed the file group to be added to a specific bundle
+                    String[] parameterParts = getHeaderField(j).split("__", 2);
+                    String extraParameter = (parameterParts.length == 1) ? "" : parameterParts[1];
+                    processMetaBodyRowFilegroup(contentsWriter, currentItemDirectory, currentLine[j], extraParameter);
                 } else {
                     processMetaBodyRowField(getHeaderField(j), currentLine[j], xmlWriter);
                 }

@@ -2,6 +2,7 @@ package edu.osu.kb.batch;
 
 import com.csvreader.CsvReader;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.*;
 import java.io.*;
 import java.util.*;

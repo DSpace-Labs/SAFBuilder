@@ -371,15 +371,34 @@ public class SAFPackage
             }
         }
 
-        Collections.sort(filesCollection, new AlphanumComparator());
+        Collections.sort(filesCollection, new FileObjectComparator());
 
         // Using reverse depend on your stance on which order to sort bitstreams from DS-749
+        // TODO allow for custom sorting/ordering/reversing
         Collections.reverse(filesCollection);
 
         // TODO This method needs to be tested. Processing file groups in general needs to be tested.
         for(FileObject fileObject: filesCollection) {
             addFileObjectToItem(contentsWriter, fileObject, fileSystemManager.resolveFile("file://" + itemDirectory), fileParameters);
         }
+    }
+
+    /**
+     * A comparator for the FileObject which does an alphanum sort of the filename (baseName) of the FileObject
+     */
+    class FileObjectComparator implements Comparator<FileObject> {
+        public int compare(FileObject a, FileObject b) {
+            AlphanumComparator alphanumComparator = new AlphanumComparator();
+            
+            try {
+            
+                return alphanumComparator.compare(a.getName().getBaseName(), b.getName().getBaseName());
+            } catch (Exception e) {
+                System.out.println("ERROR IN COMPARISON");
+                return 0;
+            }
+            
+        } 
     }
 
     /**

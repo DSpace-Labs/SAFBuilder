@@ -4,6 +4,8 @@ import com.csvreader.CsvReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.*;
+import org.apache.commons.vfs.provider.local.LocalFile;
+
 import java.io.*;
 import java.util.*;
 
@@ -387,7 +389,16 @@ public class SAFPackage
      */
     private void addFileObjectToItem(BufferedWriter contentsWriter, FileObject fileObject, FileObject destinationDirectory, String fileParameters) {
         try {
-            fileObject.moveTo(destinationDirectory);
+            if(fileObject.canRenameTo(destinationDirectory)) {
+                fileObject.moveTo(destinationDirectory);
+            } else {
+                // Can't move the file, have to copy it.
+                // Have to create an end-point file which will absorb the contents we are writing.
+                FileSystemManager fsManager = VFS.getManager();
+                FileObject localDestFile = fsManager.resolveFile(destinationDirectory.getName().getPath() + "/" + fileObject.getName().getBaseName());
+                localDestFile.createFile();
+                localDestFile.copyFrom(fileObject, Selectors.SELECT_ALL);
+            }
             incrementFileHit(fileObject.getName().getBaseName()); //TODO Don't know if this file would exist
 
             String contentsRow = fileObject.getName().getBaseName();

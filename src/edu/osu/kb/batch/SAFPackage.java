@@ -355,18 +355,14 @@ public class SAFPackage
         FileObject tarGZFile = fileSystemManager.resolveFile("tgz://" + input.getPath() + "/" + filename);
         // List the children of the Jar file
         FileObject[] children = tarGZFile.getChildren();
-        System.out.println( "Children of " + tarGZFile.getName().getURI() );
         for ( int i = 0; i < children.length; i++ )
         {
-            System.out.println( children[ i ].getName().getBaseName() );
             FileObject[] grandChildren = children[i].getChildren();
-            System.out.println("Grandchildren of:" +  children[i].getName().getBaseName());
+
             for(int j= 0; j< grandChildren.length; j++) {
                 if(grandChildren[j].getName().getBaseName().equals(".htaccess")) {
                     continue;
                 }
-                System.out.println(grandChildren[j].getName().getBaseName());
-                //System.out.println(grandChildren[j].toString());
                 filesCollection.add(grandChildren[j]);
             }
         }

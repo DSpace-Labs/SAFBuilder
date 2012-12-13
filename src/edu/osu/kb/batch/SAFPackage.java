@@ -201,6 +201,7 @@ public class SAFPackage
 
             OutputXML xmlWriter = new OutputXML(dcFileName);
             xmlWriter.start();
+	        Map<String, OutputXML> nonDCWriters = new HashMap<String, OutputXML>();
 
             for (int j = 0; j < inputCSV.getHeaderCount(); j++) {
                 if (j >= currentLine.length) {
@@ -221,11 +222,29 @@ public class SAFPackage
                     String extraParameter = (parameterParts.length == 1) ? "" : parameterParts[1];
                     processMetaBodyRowFilegroup(contentsWriter, currentItemDirectory, currentLine[j], extraParameter);
                 } else {
-                    processMetaBodyRowField(getHeaderField(j), currentLine[j], xmlWriter);
+	                String[] dublinPieces = getHeaderField(j).split("\\.");
+	                if (dublinPieces.length < 2) {
+		                // strange field, skip
+		                continue;
+	                }
+	                String schema = dublinPieces[0];
+	                if (schema.contentEquals("dc")) {
+		                processMetaBodyRowField(getHeaderField(j), currentLine[j], xmlWriter);
+	                } else {
+		                if (!nonDCWriters.containsKey(schema)) {
+			                OutputXML schemaWriter = new OutputXML(currentItemDirectory + File.separator + "metadata_" + schema + ".xml", schema);
+			                schemaWriter.start();
+			                nonDCWriters.put(schema, schemaWriter);
+		                }
+		                processMetaBodyRowField(getHeaderField(j), currentLine[j], nonDCWriters.get(schema));
+	                }
                 }
             }
             contentsWriter.close();
             xmlWriter.end();
+	        for (String key : nonDCWriters.keySet()) {
+		        nonDCWriters.get(key).end();
+	        }
         } catch (Exception e) {
             e.printStackTrace();
         }

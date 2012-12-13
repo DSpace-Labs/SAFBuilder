@@ -10,8 +10,9 @@ public class OutputXML
     private FileOutputStream FOS;
     private OutputStreamWriter OSW;
     private BufferedWriter BW;
+	private String schema;
 
-    public OutputXML(String outputFile)
+	public OutputXML(String outputFile)
     {
         //File should not already exist
         //TODO DELETE THIS
@@ -34,11 +35,19 @@ public class OutputXML
         }
     }
 
-    public void start()
+	public OutputXML(String outputFile, String schema) {
+		this(outputFile);
+		this.schema = schema;
+	}
+
+	public void start()
     {
         try {
             writer.writeXmlVersion("1.0", "UTF-8");
             writer.writeEntity("dublin_core");
+	        if (schema != null && !"dc".contentEquals(schema)) {
+		        writer.writeAttribute("schema", schema);
+	        }
         } catch (Exception e) {
             if (e.getMessage() != null) {
                 System.out.println(e.getMessage());

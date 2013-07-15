@@ -379,7 +379,8 @@ public class SAFPackage
             FileObject[] grandChildren = children[i].getChildren();
 
             for(int j= 0; j< grandChildren.length; j++) {
-                if(grandChildren[j].getName().getBaseName().equals(".htaccess")) {
+                FileObject grandChild = grandChildren[j];
+                if(grandChild.getName().getBaseName().equals(".htaccess") || grandChild.getType() != FileType.FILE) {
                     continue;
                 }
                 filesCollection.add(grandChildren[j]);

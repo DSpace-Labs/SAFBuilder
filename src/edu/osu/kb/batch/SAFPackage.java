@@ -2,11 +2,10 @@ package edu.osu.kb.batch;
 
 import com.csvreader.CsvReader;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs.*;
-import org.apache.commons.vfs.provider.local.LocalFile;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class SAFPackage
@@ -41,7 +40,8 @@ public class SAFPackage
         }
         String absoluteFileName = inputDir + metaFile;
         try {
-            inputCSV = new CsvReader(absoluteFileName);
+            InputStream csvStream = new FileInputStream(absoluteFileName);
+            inputCSV = new CsvReader(csvStream, Charset.forName("UTF-8"));
         } catch (Exception e) {
             System.out.println(input.getAbsolutePath());
             e.printStackTrace();

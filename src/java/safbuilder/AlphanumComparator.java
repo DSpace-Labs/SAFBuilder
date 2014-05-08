@@ -1,4 +1,4 @@
-package edu.osu.kb.batch;
+package safbuilder;
 
 /*
  * The Alphanum Algorithm is an improved sorting algorithm for strings

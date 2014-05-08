@@ -1,4 +1,4 @@
-package edu.osu.kb.batch;
+package safbuilder;
 
 import com.generationjava.io.xml.SimpleXmlWriter;
 import java.io.*;

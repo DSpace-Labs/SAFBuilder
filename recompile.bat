@@ -17,6 +17,6 @@ set CLASSPATH=!CLASSPATH!"
 ::echo !CLASSPATH!
 
 
-"%JAVA_HOME%\bin\javac.exe" -classpath !CLASSPATH! src/edu/osu/kb/batch/*.java -d classes
+"%JAVA_HOME%\bin\javac.exe" -classpath !CLASSPATH! src/java/safbuilder/*.java -d classes
 
 echo SAFBuilder has recompiled...

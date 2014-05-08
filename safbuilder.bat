@@ -9,4 +9,4 @@ set CLASSPATH=!CLASSPATH!"
 :: echo !CLASSPATH!
 
 
-java -cp %CLASSPATH% edu.osu.kb.batch.BatchProcess %1 %2
+java -cp %CLASSPATH% safbuilder.BatchProcess %1 %2

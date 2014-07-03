@@ -2,13 +2,10 @@ package safbuilder;
 
 import java.io.IOException;
 
-public class BatchProcess
-{
+public class BatchProcess {
 
-    public static void main(String[] args) throws IOException
-    {
-        if(args.length != 2)
-        {
+    public static void main(String[] args) throws IOException {
+        if (args.length != 2) {
             System.out.println("USAGE: BatchProcess /path/to/directory metadatafilename.csv");
             System.out.println("Hint -- directory: Use absolute path and no trailing slashes");
             System.out.println("Hint -- metadatafilename: needs to be in the directory, as do the content files");
@@ -17,7 +14,7 @@ public class BatchProcess
 
         String inputDir = args[0];
         String metaFile = args[1];
-        
+
         SAFPackage safPackageInstance = new SAFPackage();
         safPackageInstance.processMetaPack(inputDir, metaFile);
     }

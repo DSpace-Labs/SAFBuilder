@@ -1,19 +1,18 @@
 package safbuilder;
 
 import com.generationjava.io.xml.SimpleXmlWriter;
+
 import java.io.*;
 
-public class OutputXML
-{
+public class OutputXML {
 
     private SimpleXmlWriter writer;
     private FileOutputStream FOS;
     private OutputStreamWriter OSW;
     private BufferedWriter BW;
-	private String schema;
+    private String schema;
 
-	public OutputXML(String outputFile)
-    {
+    public OutputXML(String outputFile) {
         //File should not already exist
         //TODO DELETE THIS
         /*File checkFile = new File(outputFile);
@@ -35,19 +34,18 @@ public class OutputXML
         }
     }
 
-	public OutputXML(String outputFile, String schema) {
-		this(outputFile);
-		this.schema = schema;
-	}
+    public OutputXML(String outputFile, String schema) {
+        this(outputFile);
+        this.schema = schema;
+    }
 
-	public void start()
-    {
+    public void start() {
         try {
             writer.writeXmlVersion("1.0", "UTF-8");
             writer.writeEntity("dublin_core");
-	        if (schema != null && !"dc".contentEquals(schema)) {
-		        writer.writeAttribute("schema", schema);
-	        }
+            if (schema != null && !"dc".contentEquals(schema)) {
+                writer.writeAttribute("schema", schema);
+            }
         } catch (Exception e) {
             if (e.getMessage() != null) {
                 System.out.println(e.getMessage());
@@ -58,11 +56,11 @@ public class OutputXML
     /**
      * Accepts only one dublin core value
      * dc.description dc.description.abstract
-     * @param dcField Full dublin core field name -- ex: dc.description OR dc.description.abstract
+     *
+     * @param dcField   Full dublin core field name -- ex: dc.description OR dc.description.abstract
      * @param metaValue value of the metadata. Should not be blank.
      */
-    public void writeOneDC(String dcField, String metaValue)
-    {
+    public void writeOneDC(String dcField, String metaValue) {
         String element = "";
         String qualifier = "";
         String[] dublinPieces = dcField.split("\\.");
@@ -89,8 +87,7 @@ public class OutputXML
         }
     }
 
-    public void end()
-    {
+    public void end() {
         try {
             writer.endEntity();
             writer.close();
@@ -103,13 +100,11 @@ public class OutputXML
         }
     }
 
-    private boolean validateElement(String element)
-    {
+    private boolean validateElement(String element) {
         return (!element.equals("") && !element.equals(null));
     }
 
-    private boolean validateMetadata(String metadata)
-    {
+    private boolean validateMetadata(String metadata) {
         return (!metadata.equals("") && !metadata.equals(null));
     }
 }

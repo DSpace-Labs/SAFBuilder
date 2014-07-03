@@ -2,15 +2,12 @@ package safbuilder;
 
 import java.io.*;
 
-public class BatchImport
-{
+public class BatchImport {
 
-    public BatchImport()
-    {
+    public BatchImport() {
     }
 
-    public void runBatch(String eperson, String collectionId, String source)
-    {
+    public void runBatch(String eperson, String collectionId, String source) {
         try {
             Runtime rt = Runtime.getRuntime();
             Process pr = rt.exec("/dspace/bin/dsrun org.dspace.app.itemimport.ItemImport --add --eperson=" + eperson + " --collection=" + collectionId + " --source=" + source + " --mapfile=" + collectionId + "map");

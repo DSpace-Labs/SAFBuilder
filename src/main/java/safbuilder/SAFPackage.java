@@ -9,8 +9,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
-public class SAFPackage
-{
+public class SAFPackage {
     private String seperatorRegex = "\\|\\|";   // Using double pipe || to seperate multiple values in a field.
 
     // Directory on file system of this input collection
@@ -23,20 +22,19 @@ public class SAFPackage
      * Default constructor. Main method of this class is processMetaPack. The goal of this is to create a Simple Archive Format
      * package from input of files and csv metadata.
      */
-    public SAFPackage()
-    {
+    public SAFPackage() {
     }
 
     /**
      * Gets a "handle" on the metadata file
+     *
      * @param inputDir Path to input directory.
      * @param metaFile Filename of the CSV
      */
-    private void openCSV(String inputDir, String metaFile)
-    {
+    private void openCSV(String inputDir, String metaFile) {
         input = new File(inputDir);
 
-        if(!inputDir.endsWith("\\/")) {
+        if (!inputDir.endsWith("\\/")) {
             inputDir = inputDir + "/";
         }
         String absoluteFileName = inputDir + metaFile;
@@ -53,6 +51,7 @@ public class SAFPackage
 
     /**
      * Try to automatically detect charset/encoding of a file. UTF8 or iso-8859 are likely
+     *
      * @param filePath
      * @return
      * @throws IOException
@@ -79,17 +78,17 @@ public class SAFPackage
     /**
      * open metafile
      * foreach(metarows as metarow)
-     *      makeDirectory(increment)
-     *      copy filenames into directory
-     *      make contents file with entries for each filename
-     *      foreach(metarow.columns as column)
-     *          add meta entry to metadata xml
+     * makeDirectory(increment)
+     * copy filenames into directory
+     * make contents file with entries for each filename
+     * foreach(metarow.columns as column)
+     * add meta entry to metadata xml
+     *
      * @param pathToDirectory Path to the directory containing the content files and CSV
-     * @param metaFileName Filename of the CSV
+     * @param metaFileName    Filename of the CSV
      * @throws java.io.IOException If the files can't be found or created.
      */
-    public void processMetaPack(String pathToDirectory, String metaFileName) throws IOException
-    {
+    public void processMetaPack(String pathToDirectory, String metaFileName) throws IOException {
         openCSV(pathToDirectory, metaFileName);
 
         scanAllFiles();                                                         // For Reporting file usage
@@ -105,8 +104,7 @@ public class SAFPackage
     /**
      * Creates a clean/empty SimpleArchiveFormat directory for the output to go.
      */
-    private void prepareSimpleArchiveFormatDir()
-    {
+    private void prepareSimpleArchiveFormatDir() {
 
         File newDirectory = new File(input.getPath() + "/SimpleArchiveFormat");
         if (newDirectory.exists()) {
@@ -127,8 +125,7 @@ public class SAFPackage
      * Make a list of all the files in the input directory.
      * Initialize the count for each file found to have zero usages.
      */
-    private void scanAllFiles()
-    {
+    private void scanAllFiles() {
         String[] files = input.list();
 
         fileListFake = new String[files.length][2];
@@ -141,10 +138,10 @@ public class SAFPackage
     /**
      * Marks that the filename being referred to is counted as being used.
      * This method is used for scanning the files in the directory for ones that are used/unused.
+     *
      * @param filename Name of file referred to in CSV
      */
-    private void incrementFileHit(String filename)
-    {
+    private void incrementFileHit(String filename) {
         int i = 0;
         boolean found = false;
         while (!found && (i < fileListFake.length)) {
@@ -162,10 +159,10 @@ public class SAFPackage
     /**
      * Displays the files that exist in the directory that have been used the specified number of times.
      * Used for finding files that have not been used.
+     *
      * @param numHits The specified number of times the file should have been used. Value of 0 means unused file.
      */
-    private void printFiles(Integer numHits)
-    {
+    private void printFiles(Integer numHits) {
         for (int i = 0; i < fileListFake.length; i++) {
             if (fileListFake[i][1].contentEquals(numHits.toString())) {
                 System.out.println("File: " + fileListFake[i][0] + " has been used " + numHits + " times.");
@@ -175,21 +172,21 @@ public class SAFPackage
 
     /**
      * Scans the Header row of the metadata csv to usable object.
+     *
      * @throws IOException If the CSV can't be found or read
      */
-    private void processMetaHeader() throws IOException
-    {
+    private void processMetaHeader() throws IOException {
         inputCSV.readHeaders();
     }
 
     /**
      * Gets the value for a specified header column
+     *
      * @param columnNum The integer value
      * @return Text value for the specified header column
      * @throws IOException If the CSV can't be found or read
      */
-    private String getHeaderField(int columnNum) throws IOException
-    {
+    private String getHeaderField(int columnNum) throws IOException {
         return inputCSV.getHeader(columnNum);
     }
 
@@ -197,14 +194,14 @@ public class SAFPackage
      * Method to process the content/body of the metadata csv.
      * Delegate the work of processing each row to other methods.
      * Does not process the header.
+     *
      * @throws IOException If the CSV can't be found or read
      */
-    private void processMetaBody() throws IOException
-    {
+    private void processMetaBody() throws IOException {
         // The implementation of processing CSV starts counting from 0. 0 = header, 1..n = body/content
         int rowNumber = 1;
 
-        while(inputCSV.readRecord()) {
+        while (inputCSV.readRecord()) {
             processMetaBodyRow(rowNumber++);
         }
     }
@@ -212,10 +209,10 @@ public class SAFPackage
     /**
      * Processes a row in the metadata CSV.
      * Processing a row means using all of the metadata fields, and adding all of the files mentioned to the package.
+     *
      * @param rowNumber Row in the CSV.
      */
-    private void processMetaBodyRow(int rowNumber)
-    {
+    private void processMetaBodyRow(int rowNumber) {
         String currentItemDirectory = makeNewDirectory(rowNumber);
         String dcFileName = currentItemDirectory + "/dublin_core.xml";
         File contentsFile = new File(currentItemDirectory + "/contents");
@@ -227,7 +224,7 @@ public class SAFPackage
 
             OutputXML xmlWriter = new OutputXML(dcFileName);
             xmlWriter.start();
-	        Map<String, OutputXML> nonDCWriters = new HashMap<String, OutputXML>();
+            Map<String, OutputXML> nonDCWriters = new HashMap<String, OutputXML>();
 
             for (int j = 0; j < inputCSV.getHeaderCount(); j++) {
                 if (j >= currentLine.length) {
@@ -248,29 +245,29 @@ public class SAFPackage
                     String extraParameter = (parameterParts.length == 1) ? "" : parameterParts[1];
                     processMetaBodyRowFilegroup(contentsWriter, currentItemDirectory, currentLine[j], extraParameter);
                 } else {
-	                String[] dublinPieces = getHeaderField(j).split("\\.");
-	                if (dublinPieces.length < 2) {
-		                // strange field, skip
-		                continue;
-	                }
-	                String schema = dublinPieces[0];
-	                if (schema.contentEquals("dc")) {
-		                processMetaBodyRowField(getHeaderField(j), currentLine[j], xmlWriter);
-	                } else {
-		                if (!nonDCWriters.containsKey(schema)) {
-			                OutputXML schemaWriter = new OutputXML(currentItemDirectory + File.separator + "metadata_" + schema + ".xml", schema);
-			                schemaWriter.start();
-			                nonDCWriters.put(schema, schemaWriter);
-		                }
-		                processMetaBodyRowField(getHeaderField(j), currentLine[j], nonDCWriters.get(schema));
-	                }
+                    String[] dublinPieces = getHeaderField(j).split("\\.");
+                    if (dublinPieces.length < 2) {
+                        // strange field, skip
+                        continue;
+                    }
+                    String schema = dublinPieces[0];
+                    if (schema.contentEquals("dc")) {
+                        processMetaBodyRowField(getHeaderField(j), currentLine[j], xmlWriter);
+                    } else {
+                        if (!nonDCWriters.containsKey(schema)) {
+                            OutputXML schemaWriter = new OutputXML(currentItemDirectory + File.separator + "metadata_" + schema + ".xml", schema);
+                            schemaWriter.start();
+                            nonDCWriters.put(schema, schemaWriter);
+                        }
+                        processMetaBodyRowField(getHeaderField(j), currentLine[j], nonDCWriters.get(schema));
+                    }
                 }
             }
             contentsWriter.close();
             xmlWriter.end();
-	        for (String key : nonDCWriters.keySet()) {
-		        nonDCWriters.get(key).end();
-	        }
+            for (String key : nonDCWriters.keySet()) {
+                nonDCWriters.get(key).end();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -281,11 +278,10 @@ public class SAFPackage
      * multiple values per value so long as they are separated by the separator character
      *
      * @param field_header Field name, such as dc.description or dc.description.abstract
-     * @param field_value Metadata value or values. Multiple values can be separated by a separator character.
-     * @param xmlWriter The xml file that the data is being written to
+     * @param field_value  Metadata value or values. Multiple values can be separated by a separator character.
+     * @param xmlWriter    The xml file that the data is being written to
      */
-    private void processMetaBodyRowField(String field_header, String field_value, OutputXML xmlWriter)
-    {
+    private void processMetaBodyRowField(String field_header, String field_value, OutputXML xmlWriter) {
         // process Metadata field. Multiple entries can be specified with separator character
         String[] fieldValues = field_value.split(seperatorRegex);
         for (int valueNum = 0; valueNum < fieldValues.length; valueNum++) {
@@ -302,18 +298,17 @@ public class SAFPackage
      * Processes the files for the filename column.
      * open contents
      * for-each files as file
-     *      copy file into directory
-     *      add file to contents
+     * copy file into directory
+     * add file to contents
      *
      * @param contentsWriter Writer to the contents file which tracks the files to ingest for item
-     * @param itemDirectory Absolute path to the directory to put the files in
-     * @param filenames String with filename / filenames separated by separator.
+     * @param itemDirectory  Absolute path to the directory to put the files in
+     * @param filenames      String with filename / filenames separated by separator.
      * @param fileParameters Parameters for these files. Blank value means nothing special needs to happen.
      */
-    private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String globalFileParameters)
-    {
+    private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String globalFileParameters) {
         String[] files = filenames.split(seperatorRegex);
-        
+
         for (int j = 0; j < files.length; j++) {
             /* Trim whitespace and add a __ at the end to avoid array out of bounds exception
              * on the filenameParts[1] reference. (Could have also done if.. else..)
@@ -338,7 +333,7 @@ public class SAFPackage
                 if (fileParameters.length() > 0) {
                     // bundle:SOMETHING, primary:TRUE or description:Something, or any combination with "__" in between
                     String[] parameters = fileParameters.split("__");
-                    for(String parameter : parameters) {
+                    for (String parameter : parameters) {
                         contentsRow = contentsRow.concat("\t" + parameter.trim());
                     }
                 }
@@ -355,16 +350,17 @@ public class SAFPackage
 
     /**
      * Obtain just the filename from the string. The string could include some path information, which is un-needed
+     *
      * @param filenameWithPath The filename, may or may not include paths
      * @return The filename with no path or slashes.
      */
     private String getFilenameName(String filenameWithPath) {
-        if(filenameWithPath.contains("\\")) {
+        if (filenameWithPath.contains("\\")) {
             String[] pathSegments = filenameWithPath.split("\\");
-            return pathSegments[pathSegments.length-1];
-        } else if(filenameWithPath.contains("/")) {
+            return pathSegments[pathSegments.length - 1];
+        } else if (filenameWithPath.contains("/")) {
             String[] pathSegments = filenameWithPath.split("/");
-            return pathSegments[pathSegments.length-1];
+            return pathSegments[pathSegments.length - 1];
         } else {
             return filenameWithPath;
         }
@@ -373,11 +369,11 @@ public class SAFPackage
     /**
      * Makes a new directory for the item being processed
      * /path/to/input/SimpleArchiveFormat/item_27/
+     *
      * @param itemNumber Iterator for the item being processed, Starts from zero.
      * @return Absolute path to the newly created directory
      */
-    private String makeNewDirectory(int itemNumber)
-    {
+    private String makeNewDirectory(int itemNumber) {
         File newDirectory = new File(input.getPath() + "/SimpleArchiveFormat/item_" + itemNumber);
         newDirectory.mkdir();
         return newDirectory.getAbsolutePath();
@@ -385,7 +381,6 @@ public class SAFPackage
 
     /**
      * Reads a .tar.gz file that would contain the files for the metadata row.
-     *
      *
      * @param itemDirectory
      * @param filename
@@ -400,13 +395,12 @@ public class SAFPackage
         FileObject tarGZFile = fileSystemManager.resolveFile("tgz://" + input.getPath() + "/" + filename);
         // List the children of the Jar file
         FileObject[] children = tarGZFile.getChildren();
-        for ( int i = 0; i < children.length; i++ )
-        {
+        for (int i = 0; i < children.length; i++) {
             FileObject[] grandChildren = children[i].getChildren();
 
-            for(int j= 0; j< grandChildren.length; j++) {
+            for (int j = 0; j < grandChildren.length; j++) {
                 FileObject grandChild = grandChildren[j];
-                if(grandChild.getName().getBaseName().equals(".htaccess") || grandChild.getType() != FileType.FILE) {
+                if (grandChild.getName().getBaseName().equals(".htaccess") || grandChild.getType() != FileType.FILE) {
                     continue;
                 }
                 filesCollection.add(grandChildren[j]);
@@ -420,7 +414,7 @@ public class SAFPackage
         Collections.reverse(filesCollection);
 
         // TODO This method needs to be tested. Processing file groups in general needs to be tested.
-        for(FileObject fileObject: filesCollection) {
+        for (FileObject fileObject : filesCollection) {
             addFileObjectToItem(contentsWriter, fileObject, fileSystemManager.resolveFile("file://" + itemDirectory), fileParameters);
         }
     }
@@ -431,26 +425,27 @@ public class SAFPackage
     class FileObjectComparator implements Comparator<FileObject> {
         public int compare(FileObject a, FileObject b) {
             AlphanumComparator alphanumComparator = new AlphanumComparator();
-            
+
             try {
-            
+
                 return alphanumComparator.compare(a.getName().getBaseName(), b.getName().getBaseName());
             } catch (Exception e) {
                 System.out.println("ERROR IN COMPARISON");
                 return 0;
             }
-            
-        } 
+
+        }
     }
 
     /**
      * Move the commons "FileObject" to the item's directory.
+     *
      * @param contentsWriter
      * @param destinationDirectory
      */
     private void addFileObjectToItem(BufferedWriter contentsWriter, FileObject fileObject, FileObject destinationDirectory, String fileParameters) {
         try {
-            if(fileObject.canRenameTo(destinationDirectory)) {
+            if (fileObject.canRenameTo(destinationDirectory)) {
                 fileObject.moveTo(destinationDirectory);
             } else {
                 // Can't move the file, have to copy it.

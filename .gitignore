@@ -10,9 +10,12 @@ build/
 dist/
 out/
 *.class
+target
 
 #Local stash for .jars
 lib-files/
 
 #Created Output, only really used if you build the sample_data.
 SimpleArchiveFormat/
+
+.DS_Store

@@ -41,6 +41,8 @@ public class SAFPackage
         String absoluteFileName = inputDir + metaFile;
         try {
             InputStream csvStream = new FileInputStream(absoluteFileName);
+
+
             inputCSV = new CsvReader(csvStream, Charset.forName("UTF-8"));
         } catch (Exception e) {
             System.out.println(input.getAbsolutePath());
@@ -48,6 +50,26 @@ public class SAFPackage
             System.out.println(e.getMessage());
         }
         System.out.println("Opened CSV File:" + absoluteFileName);
+    }
+
+    /**
+     * Alternative opener, determines path to files, based on parent directory of CSV
+     * @param metaFileWithPath
+     */
+    private void openCSV(String metaFileWithPath)
+    {
+        try {
+            InputStream csvStream = new FileInputStream(metaFileWithPath);
+            inputCSV = new CsvReader(csvStream, Charset.forName("UTF-8"));
+
+            File csvFile = new File(metaFileWithPath);
+            input = new File(csvFile.getParent());
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println("Opened CSV File:" + absoluteFileName);
+
     }
 
     /**

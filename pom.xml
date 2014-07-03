@@ -46,5 +46,10 @@
           <artifactId>xmlwriter</artifactId>
           <version>2.2.2</version>
       </dependency>
+      <dependency>
+          <groupId>com.googlecode.juniversalchardet</groupId>
+          <artifactId>juniversalchardet</artifactId>
+          <version>1.0.3</version>
+      </dependency>
   </dependencies>
 </project>

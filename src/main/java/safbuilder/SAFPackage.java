@@ -3,6 +3,7 @@ package safbuilder;
 import com.csvreader.CsvReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs.*;
+import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -41,9 +42,7 @@ public class SAFPackage
         String absoluteFileName = inputDir + metaFile;
         try {
             InputStream csvStream = new FileInputStream(absoluteFileName);
-
-
-            inputCSV = new CsvReader(csvStream, Charset.forName("UTF-8"));
+            inputCSV = new CsvReader(csvStream, detectCharsetOfFile(absoluteFileName));
         } catch (Exception e) {
             System.out.println(input.getAbsolutePath());
             e.printStackTrace();
@@ -51,6 +50,31 @@ public class SAFPackage
         }
         System.out.println("Opened CSV File:" + absoluteFileName);
     }
+
+    /**
+     * Try to automatically detect charset/encoding of a file. UTF8 or iso-8859 are likely
+     * @param filePath
+     * @return
+     * @throws IOException
+     */
+    public static Charset detectCharsetOfFile(String filePath) throws IOException {
+        UniversalDetector detector = new UniversalDetector(null);
+
+        byte[] buf = new byte[4096];
+        FileInputStream fis = new FileInputStream(filePath);
+        int nread;
+        while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+            detector.handleData(buf, 0, nread);
+        }
+        detector.dataEnd();
+
+        fis.close();
+
+        Charset detectedCharset = Charset.forName(detector.getDetectedCharset());
+        System.out.println("Detected input CSV as:" + detectedCharset.displayName());
+        return detectedCharset;
+    }
+
 
     /**
      * open metafile

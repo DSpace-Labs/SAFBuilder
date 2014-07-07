@@ -1,11 +1,36 @@
 SimpleArchiveFormat Builder
 ===========================
 
-A standalone Java tool to build Simple Archive Format packages which are used to easily ingest items into a document management system, such as an institutional repository like DSpace. The use case satisfied by this SAFBuilder is that someone has a spreadsheet filled with metadata as well as content files such as images and PDFs and wishes to then bulk import this into a document management system. Users find it easy to create spreadsheets, this tool makes it easy to then import it into their system.
+A tool that turns content files and a metadata spreadsheet into a Simple Archive Format package, which easily allows for batch import to DSpace, an Institutional Repository.
 
 Author: Peter Dietz - [Longsight](http://longsight.com)
 
 [Wiki entry on Simple Archive Format Packager](https://wiki.duraspace.org/display/DSPACE/Simple+Archive+Format+Packager "Simple Archive Format Package wiki entry")
+
+Instructions
+------------
+You need Maven, Git, and Java JDK installed on your computer. You have to clone the code from Github, and then compile the program before it can be used. This should take about 20 seconds.
+    git clone git://github.com/peterdietz/SAFBuilder.git
+    cd SAFBuilder
+    mvn clean package
+    ./safbuilder.sh
+
+With no arguments the system will print out the help.
+> USAGE: BatchProcess /path/to/directory metadatafilename.csv
+> Hint -- directory: Use absolute path and no trailing slashes
+> Hint -- metadatafilename: needs to be in the directory, as do the content files
+
+Included is some sample data to get started using the tool.
+    ./safbuilder src/sample_data AAA_batch-metadata.csv
+
+
+The previous version of the SAFBuilder tool did not use Maven to build everything. If you would like to use the previous method:
+   git clone git://github.com/peterdietz/SAFBuilder.git
+   cd SAFBuilder
+   git checkout 1.x
+   ./recompile.sh
+   ./safbuilder.sh
+
 
 Input
 -----
@@ -17,6 +42,7 @@ A spreadsheet (.csv) with the following columns:
 
 Output
 ------
+The output is a directory "SimpleArchiveFormat" in the directory you previously specified, and it contains subfolders.
     SimpleArchiveFormat/
         item_000/
             dublin_core.xml         -- qualified Dublin Core metadata for metadata fields belonging to the dc schema
@@ -30,24 +56,7 @@ Output
             file_1.png
             ...
 
-Instructions
-------------
-The commands below will: check out the code from Git, download the external java libraries used to make the tool, compile the source code, and execute it. The exact commands below are specific to Linux, other users should be able to deduce what it means.
-    git clone git://github.com/peterdietz/SAFBuilder.git
-    cd SAFBuilder
-    mvn clean package
-    ./safbuilder.sh
-
-With no arguments the system will print out the help.
-> USAGE: BatchProcess /path/to/directory metadatafilename.csv  
-> Hint -- directory: Use absolute path and no trailing slashes  
-> Hint -- metadatafilename: needs to be in the directory, as do the content files  
-
-Included is some sample data to get started using the tool.
-    ./safbuilder src/sample_data AAA_batch-metadata.csv
-
-The output is a directory "SimpleArchiveFormat" in the directory you previously specified.
-There will also be some on-screen text, usually indicating what it encountered.
+You can then import the SimpleArchiveFormat directory into DSpace as-is.
 
 Additionally, there are installation guides for installing the SAFBuilder for your Operating System (Windows + Linux).
 https://github.com/peterdietz/SAFBuilder/wiki

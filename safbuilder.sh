@@ -1,8 +1,6 @@
 #!/bin/sh
-if [ ! -d "target" ]; then
-  echo "Recompiling SAFBuilder, just a moment..."
-  mvn --quiet -DskipTests=true clean package
-fi
+echo "Recompiling SAFBuilder, just a moment..."
+mvn --quiet -DskipTests=true clean package
 
 ## arg1 = Path to content files directory
 ## arg2 = Metadata CSV filename

@@ -12,7 +12,6 @@ Instructions
 You need Maven, Git, and Java JDK installed on your computer. You have to clone the code from Github, and then compile the program before it can be used. This should take about 20 seconds.
     git clone git://github.com/peterdietz/SAFBuilder.git
     cd SAFBuilder
-    mvn clean package
     ./safbuilder.sh
 
 With no arguments the system will print out the help.
@@ -60,3 +59,9 @@ You can then import the SimpleArchiveFormat directory into DSpace as-is.
 
 Additionally, there are installation guides for installing the SAFBuilder for your Operating System (Windows + Linux).
 https://github.com/peterdietz/SAFBuilder/wiki
+
+
+For Developers
+--------------
+As this uses Maven to manage dependencies, run mvn clean package between builds.
+For end users, running "mvn clean package" every time is unneccesary, but it simplifies the instructions.

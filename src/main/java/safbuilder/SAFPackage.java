@@ -18,6 +18,8 @@ public class SAFPackage {
     // Storage of the csv data.
     private CsvReader inputCSV;
 
+    private final String simpleArchiveFormat = "SimpleArchiveFormat";
+
     /**
      * Default constructor. Main method of this class is processMetaPack. The goal of this is to create a Simple Archive Format
      * package from input of files and csv metadata.
@@ -93,7 +95,7 @@ public class SAFPackage {
      * @param metaFileName    Filename of the CSV
      * @throws java.io.IOException If the files can't be found or created.
      */
-    public void processMetaPack(String pathToDirectory, String metaFileName) throws IOException {
+    public void processMetaPack(String pathToDirectory, String metaFileName, Boolean exportToZip) throws IOException {
         openCSV(pathToDirectory, metaFileName);
 
         scanAllFiles();                                                         // For Reporting file usage
@@ -103,12 +105,27 @@ public class SAFPackage {
         processMetaHeader();
         processMetaBody();
 
+        if(exportToZip) {
+            exportToZip(pathToDirectory);
+        }
+
         printFiles(0);                                                          // print a report of files not used
     }
 
-    public void processMetaPack(String pathToCSV) throws IOException {
+    public void processMetaPack(String pathToCSV, Boolean exportToZip) throws IOException {
         File csvFile = new File(pathToCSV);
-        processMetaPack(csvFile.getParent(), csvFile.getName());
+        processMetaPack(csvFile.getParent(), csvFile.getName(), exportToZip);
+    }
+
+    public void exportToZip(String pathToDirectory) {
+        String safDirectory = pathToDirectory + "/" + simpleArchiveFormat;
+        String zipDest = pathToDirectory + "/" + simpleArchiveFormat + ".zip";
+        try {
+            ZipUtil.createZip(safDirectory, zipDest);
+            System.out.println("ZIP file located at: " + new File(zipDest).getAbsolutePath());
+        } catch (IOException e) {
+            System.out.println("ERROR Zipping SAF: " + e.getMessage());
+        }
     }
 
     /**
@@ -116,7 +133,7 @@ public class SAFPackage {
      */
     private void prepareSimpleArchiveFormatDir() {
 
-        File newDirectory = new File(input.getPath() + "/SimpleArchiveFormat");
+        File newDirectory = new File(input.getPath() + "/" + simpleArchiveFormat);
         if (newDirectory.exists()) {
             try {
                 FileUtils.deleteDirectory(newDirectory);
@@ -384,7 +401,7 @@ public class SAFPackage {
      * @return Absolute path to the newly created directory
      */
     private String makeNewDirectory(int itemNumber) {
-        File newDirectory = new File(input.getPath() + "/SimpleArchiveFormat/item_" + itemNumber);
+        File newDirectory = new File(input.getPath() + "/" + simpleArchiveFormat + "/item_" + itemNumber);
         newDirectory.mkdir();
         return newDirectory.getAbsolutePath();
     }

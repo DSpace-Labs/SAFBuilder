@@ -23,7 +23,7 @@ public class BatchProcess {
 
         if(commandLine.hasOption('c')) {
             SAFPackage safPackageInstance = new SAFPackage();
-            safPackageInstance.processMetaPack(commandLine.getOptionValue('c'));
+            safPackageInstance.processMetaPack(commandLine.getOptionValue('c'), commandLine.hasOption('z'));
         }
     }
 }

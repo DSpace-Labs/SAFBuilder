@@ -106,6 +106,11 @@ public class SAFPackage {
         printFiles(0);                                                          // print a report of files not used
     }
 
+    public void processMetaPack(String pathToCSV) throws IOException {
+        File csvFile = new File(pathToCSV);
+        processMetaPack(csvFile.getParent(), csvFile.getName());
+    }
+
     /**
      * Creates a clean/empty SimpleArchiveFormat directory for the output to go.
      */
@@ -309,7 +314,7 @@ public class SAFPackage {
      * @param contentsWriter Writer to the contents file which tracks the files to ingest for item
      * @param itemDirectory  Absolute path to the directory to put the files in
      * @param filenames      String with filename / filenames separated by separator.
-     * @param fileParameters Parameters for these files. Blank value means nothing special needs to happen.
+     * @param globalFileParameters Parameters for these files. Blank value means nothing special needs to happen.
      */
     private void processMetaBodyRowFile(BufferedWriter contentsWriter, String itemDirectory, String filenames, String globalFileParameters) {
         String[] files = filenames.split(seperatorRegex);

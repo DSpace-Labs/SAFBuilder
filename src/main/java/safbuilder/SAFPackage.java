@@ -10,7 +10,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 public class SAFPackage {
-    private String seperatorRegex = "\\|\\|";   // Using double pipe || to seperate multiple values in a field.
+    private String seperatorRegex = "\\|\\|";   // Using double pipe || to separate multiple values in a field.
 
     // Directory on file system of this input collection
     private File input;
@@ -69,7 +69,12 @@ public class SAFPackage {
 
         fis.close();
 
-        Charset detectedCharset = Charset.forName(detector.getDetectedCharset());
+        String charset = detector.getDetectedCharset();
+        if(charset == null) {
+            charset = "UTF-8";
+            System.out.println("Didn't properly detect the charset of file. Setting to UTF-8 as a fallback");
+        }
+        Charset detectedCharset = Charset.forName(charset);
         System.out.println("Detected input CSV as:" + detectedCharset.displayName());
         return detectedCharset;
     }

@@ -3,6 +3,8 @@ package safbuilder;
 import com.generationjava.io.xml.SimpleXmlWriter;
 
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class OutputXML {
 
@@ -11,6 +13,7 @@ public class OutputXML {
     private OutputStreamWriter OSW;
     private BufferedWriter BW;
     private String schema;
+    private static final Pattern languagePattern = Pattern.compile("\\[(.*?)\\]");
 
     public OutputXML(String outputFile) {
         //File should not already exist
@@ -63,7 +66,15 @@ public class OutputXML {
     public void writeOneDC(String dcField, String metaValue) {
         String element = "";
         String qualifier = "";
-        String[] dublinPieces = dcField.split("\\.");
+
+        String dcFieldMinusLanguage;
+        if(dcField.contains("[")) {
+            String[] dcFieldAndLanguage = dcField.split("\\[");
+            dcFieldMinusLanguage = dcFieldAndLanguage[0];
+        } else {
+            dcFieldMinusLanguage = dcField;
+        }
+        String[] dublinPieces = dcFieldMinusLanguage.split("\\.");
         if (dublinPieces.length > 1) {
             element = dublinPieces[1];
         }
@@ -80,6 +91,13 @@ public class OutputXML {
             if (qualifier.length() > 0) {
                 writer.writeAttribute("qualifier", qualifier);
             }
+
+            //See if this has a language dc.description[fr]
+            Matcher languageMatcher = languagePattern.matcher(dcField);
+            if (languageMatcher.find()) {
+                writer.writeAttribute("language", languageMatcher.group(1));
+            }
+
             writer.writeText(metaValue);
             writer.endEntity();
         } catch (Exception e) {

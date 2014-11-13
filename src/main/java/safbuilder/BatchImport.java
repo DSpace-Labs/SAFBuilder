@@ -2,6 +2,7 @@ package safbuilder;
 
 import java.io.*;
 
+@Deprecated
 public class BatchImport {
 
     public BatchImport() {

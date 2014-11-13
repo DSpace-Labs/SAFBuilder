@@ -11,6 +11,7 @@ public class BatchProcess {
         Options options = new Options();
         options.addOption("c", "csv", true, "Filename with path of the CSV spreadsheet. This must be in the same directory as the content files");
         options.addOption("h", "help", false, "Display the Help");
+        options.addOption("m", "manifest", false, "Initialize a spreadsheet, a manifest listing all of the files in the directory, you must specify a CSV for -c ");
         options.addOption("z", "zip", false, "(optional) ZIP the output");
 
         CommandLine commandLine = parser.parse(options, args);
@@ -21,8 +22,14 @@ public class BatchProcess {
             System.exit(0);
         }
 
+        SAFPackage safPackageInstance = new SAFPackage();
+
+        if(commandLine.hasOption('m') && commandLine.hasOption('c')) {
+            safPackageInstance.generateManifest(commandLine.getOptionValue('c'));
+            System.exit(0);
+        }
+
         if(commandLine.hasOption('c')) {
-            SAFPackage safPackageInstance = new SAFPackage();
             safPackageInstance.processMetaPack(commandLine.getOptionValue('c'), commandLine.hasOption('z'));
         }
     }

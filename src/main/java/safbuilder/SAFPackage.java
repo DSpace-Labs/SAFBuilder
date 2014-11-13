@@ -446,6 +446,42 @@ public class SAFPackage {
         }
     }
 
+    public void generateManifest(String pathToCSV) {
+        File csvFile = new File(pathToCSV);
+        File directory = csvFile.getParentFile();
+        System.out.println("Creating manifest of files in directory:" + directory + " will output results to: " + csvFile);
+
+        openCSV(csvFile.getParent(), csvFile.getName());
+
+        CsvWriter csvWriter = new CsvWriter(pathToCSV);
+        String[] header = new String[]{"filename", "dc.title", "dc.contributor.author","dc.date.issued","dc.description.abstract", "dc.subject"};
+        try {
+            csvWriter.writeRecord(header);
+            csvWriter.endRecord();
+
+            String[] files = input.list();
+
+            System.out.print("Building manifest:");
+            for (int i = 0; i < files.length; i++) {
+                //Skip dot files, blanks, and the current CSV file.
+                if(StringUtils.isNotEmpty(files[i]) || files[i].startsWith(".") || files[i].equals(csvFile.getName())) {
+                    continue;
+                }
+
+                csvWriter.write(files[i]);
+                csvWriter.endRecord();
+                System.out.print(".");
+            }
+
+            System.out.println(" - " + files.length + " files were added to manifest.");
+
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        } finally {
+            csvWriter.close();
+        }
+    }
+
     /**
      * A comparator for the FileObject which does an alphanum sort of the filename (baseName) of the FileObject
      */

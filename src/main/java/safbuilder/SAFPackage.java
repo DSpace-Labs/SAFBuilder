@@ -245,6 +245,7 @@ public class SAFPackage {
         String currentItemDirectory = makeNewDirectory(rowNumber);
         String dcFileName = currentItemDirectory + "/dublin_core.xml";
         File contentsFile = new File(currentItemDirectory + "/contents");
+        File collectionFile = new File(currentItemDirectory + "/collections");
 
         try {
             BufferedWriter contentsWriter = new BufferedWriter(new FileWriter(contentsFile));
@@ -273,7 +274,10 @@ public class SAFPackage {
                     String[] parameterParts = getHeaderField(j).split("__", 2);
                     String extraParameter = (parameterParts.length == 1) ? "" : parameterParts[1];
                     processMetaBodyRowFilegroup(contentsWriter, currentItemDirectory, currentLine[j], extraParameter);
+                } else if (getHeaderField(j).contains("collection")) {
+                    processMetaBodyRowCollections(collectionFile, currentLine[j]);
                 } else {
+                    //Metadata
                     String[] dublinPieces = getHeaderField(j).split("\\.");
                     if (dublinPieces.length < 2) {
                         // strange field, skip
@@ -448,11 +452,20 @@ public class SAFPackage {
         }
     }
 
+    public void processMetaBodyRowCollections(File collectionFile, String collectionsValues) throws IOException {
+        String[] collections = collectionsValues.split(seperatorRegex);
+        for(String collection : collections) {
+            FileUtils.writeStringToFile(collectionFile, collection, true);
+            FileUtils.writeStringToFile(collectionFile, System.getProperty("line.separator"), true);
+        }
+    }
+
     public void generateManifest(String pathToCSV) {
         File csvFile = new File(pathToCSV);
         File directory = csvFile.getParentFile();
         System.out.println("Creating manifest of files in directory:" + directory + " will output results to: " + csvFile);
 
+        //TODO, if CSV doesn't exist, errors get reported
         openCSV(csvFile.getParent(), csvFile.getName());
 
         CsvWriter csvWriter = new CsvWriter(pathToCSV);

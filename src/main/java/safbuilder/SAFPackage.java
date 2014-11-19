@@ -1,7 +1,9 @@
 package safbuilder;
 
 import com.csvreader.CsvReader;
+import com.csvreader.CsvWriter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs.*;
 import org.mozilla.universalchardet.UniversalDetector;
 
@@ -464,7 +466,8 @@ public class SAFPackage {
             System.out.print("Building manifest:");
             for (int i = 0; i < files.length; i++) {
                 //Skip dot files, blanks, and the current CSV file.
-                if(StringUtils.isNotEmpty(files[i]) || files[i].startsWith(".") || files[i].equals(csvFile.getName())) {
+                if(StringUtils.isEmpty(files[i]) || files[i].startsWith(".") || files[i].equals(csvFile.getName())) {
+                    System.out.print("Skip:[" + files[i]+"]");
                     continue;
                 }
 
@@ -476,6 +479,7 @@ public class SAFPackage {
             System.out.println(" - " + files.length + " files were added to manifest.");
 
         } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
             System.err.println(e.getMessage());
         } finally {
             csvWriter.close();

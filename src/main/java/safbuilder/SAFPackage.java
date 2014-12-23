@@ -2,10 +2,17 @@ package safbuilder;
 
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs.*;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.mozilla.universalchardet.UniversalDetector;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -247,6 +254,10 @@ public class SAFPackage {
         File contentsFile = new File(currentItemDirectory + "/contents");
         File collectionFile = new File(currentItemDirectory + "/collections");
 
+        //Specify multiple alternatives for filename, to accept wider input.
+        String[] filenameColumn = {"filename", "bitstream", "bitstreams"};
+        String[] filenameWithPartsColumn = {"filename__", "bitstream__", "bitstreams__"};
+
         try {
             BufferedWriter contentsWriter = new BufferedWriter(new FileWriter(contentsFile));
 
@@ -264,9 +275,11 @@ public class SAFPackage {
                     continue;
                 }
 
-                if (getHeaderField(j).contentEquals("filename")) {
+                if (Arrays.asList(filenameColumn).contains(getHeaderField(j))) {
+                    // filename
                     processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], "");
-                } else if (getHeaderField(j).contains("filename__")) {
+                } else if (Arrays.asList(filenameWithPartsColumn).contains(getHeaderField(j))) {
+                    // filename__
                     //This file has extra parameters, such as being destined for a bundle, or specifying primary
                     String[] filenameParts = getHeaderField(j).split("__", 2);
                     processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], filenameParts[1]);
@@ -275,7 +288,7 @@ public class SAFPackage {
                     String extraParameter = (parameterParts.length == 1) ? "" : parameterParts[1];
                     processMetaBodyRowFilegroup(contentsWriter, currentItemDirectory, currentLine[j], extraParameter);
                 } else if (getHeaderField(j).contains("collection")) {
-                    processMetaBodyRowCollections(collectionFile, currentLine[j]);
+                    //TODO, figure out strategy for validation processMetaBodyRowCollections(collectionFile, currentLine[j]);
                 } else {
                     //Metadata
                     String[] dublinPieces = getHeaderField(j).split("\\.");
@@ -454,10 +467,55 @@ public class SAFPackage {
 
     public void processMetaBodyRowCollections(File collectionFile, String collectionsValues) throws IOException {
         String[] collections = collectionsValues.split(seperatorRegex);
+        boolean validateCollection = true;
+
         for(String collection : collections) {
+            if(validateCollection) {
+                validateCollection(collection);
+            }
+
             FileUtils.writeStringToFile(collectionFile, collection, true);
             FileUtils.writeStringToFile(collectionFile, System.getProperty("line.separator"), true);
         }
+    }
+
+    static HashSet<String> handleSet;
+
+    public void initializeCollectionsSet() throws IOException{
+        String restAPI = "http://localhost:8080/rest/collections";
+        handleSet = new HashSet<String>();
+
+
+        HttpGet request = new HttpGet(restAPI);
+        request.setHeader("Accept", "application/json");
+        request.addHeader("Content-Type", "application/json");
+        //request.addHeader("rest-dspace-token", token);
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpResponse httpResponse = httpClient.execute(request);
+
+        if(httpResponse.getStatusLine().getStatusCode() == 200) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode collNodes = mapper.readValue(httpResponse.getEntity().getContent(), JsonNode.class);
+            for(JsonNode collNode : collNodes) {
+                String handle = collNode.get("handle").asText();
+                handleSet.add(handle);
+            }
+
+        } else {
+            throw new IOException("REST API not available");
+        }
+    }
+
+    public void validateCollection(String collectionHandle) throws IOException {
+        if(handleSet == null) {
+            initializeCollectionsSet();
+        }
+
+        if(! handleSet.contains(collectionHandle)) {
+            throw new IOException("Handle did not exist in handleset:" + collectionHandle);
+        }
+
+
     }
 
     public void generateManifest(String pathToCSV) {

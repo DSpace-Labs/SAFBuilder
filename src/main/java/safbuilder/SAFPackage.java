@@ -288,7 +288,8 @@ public class SAFPackage {
                     String extraParameter = (parameterParts.length == 1) ? "" : parameterParts[1];
                     processMetaBodyRowFilegroup(contentsWriter, currentItemDirectory, currentLine[j], extraParameter);
                 } else if (getHeaderField(j).contains("collection")) {
-                    //TODO, figure out strategy for validation processMetaBodyRowCollections(collectionFile, currentLine[j]);
+                    //TODO, figure out strategy for validation
+                    processMetaBodyRowCollections(collectionFile, currentLine[j]);
                 } else {
                     //Metadata
                     String[] dublinPieces = getHeaderField(j).split("\\.");
@@ -467,7 +468,9 @@ public class SAFPackage {
 
     public void processMetaBodyRowCollections(File collectionFile, String collectionsValues) throws IOException {
         String[] collections = collectionsValues.split(seperatorRegex);
-        boolean validateCollection = true;
+
+        //TODO Validating collections is alpha, so leave disabled...
+        boolean validateCollection = false;
 
         for(String collection : collections) {
             if(validateCollection) {

@@ -467,12 +467,17 @@ public class SAFPackage {
     }
 
     public void processMetaBodyRowCollections(File collectionFile, String collectionsValues) throws IOException {
+        collectionsValues = collectionsValues.trim();
         String[] collections = collectionsValues.split(seperatorRegex);
 
         //TODO Validating collections is alpha, so leave disabled...
         boolean validateCollection = false;
 
         for(String collection : collections) {
+            if(StringUtils.isEmpty(collection)) {
+                continue;
+            }
+
             if(validateCollection) {
                 validateCollection(collection);
             }

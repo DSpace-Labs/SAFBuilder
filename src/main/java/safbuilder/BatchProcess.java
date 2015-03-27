@@ -12,6 +12,7 @@ public class BatchProcess {
         options.addOption("c", "csv", true, "Filename with path of the CSV spreadsheet. This must be in the same directory as the content files");
         options.addOption("h", "help", false, "Display the Help");
         options.addOption("m", "manifest", false, "Initialize a spreadsheet, a manifest listing all of the files in the directory, you must specify a CSV for -c ");
+        options.addOption("s", "symbolicLink", false, "Set a Symbolic Link for bitstreams (instead of copying them)");
         options.addOption("z", "zip", false, "(optional) ZIP the output");
 
         CommandLine commandLine = parser.parse(options, args);
@@ -30,6 +31,9 @@ public class BatchProcess {
         }
 
         if(commandLine.hasOption('c')) {
+            if(commandLine.hasOption('s')){
+                safPackageInstance.setSymbolicLink(true);
+            }
             safPackageInstance.processMetaPack(commandLine.getOptionValue('c'), commandLine.hasOption('z'));
         }
     }

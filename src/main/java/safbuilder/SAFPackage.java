@@ -16,6 +16,9 @@ import org.apache.http.client.methods.HttpPut;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class SAFPackage {
@@ -28,12 +31,20 @@ public class SAFPackage {
     private CsvReader inputCSV;
 
     private final String simpleArchiveFormat = "SimpleArchiveFormat";
+    
+    //Set a a Symbolic Link for filesinstead of copying them
+    private boolean symbolicLink = false;
 
     /**
      * Default constructor. Main method of this class is processMetaPack. The goal of this is to create a Simple Archive Format
      * package from input of files and csv metadata.
      */
     public SAFPackage() {
+    }
+
+    
+    public void setSymbolicLink(boolean symbolicLink) {
+        this.symbolicLink = symbolicLink;
     }
 
     /**
@@ -372,8 +383,18 @@ public class SAFPackage {
             String fileParameters = filenameParts[1] + "__" + globalFileParameters;
 
             try {
-
-                FileUtils.copyFileToDirectory(new File(input.getPath() + "/" + currentFile), new File(itemDirectory));
+                
+                //copying files
+                if (!symbolicLink) {
+                    FileUtils.copyFileToDirectory(new File(input.getPath() + "/" + currentFile), new File(itemDirectory));
+                } 
+                //instead of copying them, set a symbolicLink
+                else {
+                    Path pathLink = (new File(input.getPath() + "/" + currentFile)).toPath();
+                    File f = new File(currentFile);
+                    Path pathTarget = (new File(itemDirectory + "/" + f.getName())).toPath();
+                    Files.createSymbolicLink(pathTarget, pathLink);
+                }
                 incrementFileHit(currentFile); //TODO fix file counter to deal with multifiles
 
                 String contentsRow = getFilenameName(currentFile);

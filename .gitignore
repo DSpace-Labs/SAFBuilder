@@ -11,6 +11,7 @@ dist/
 out/
 *.class
 target
+dependency-reduced-pom.xml
 
 #Local stash for .jars
 lib-files/

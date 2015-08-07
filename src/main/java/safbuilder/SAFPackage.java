@@ -289,7 +289,7 @@ public class SAFPackage {
                 if (Arrays.asList(filenameColumn).contains(getHeaderField(j))) {
                     // filename
                     processMetaBodyRowFile(contentsWriter, currentItemDirectory, currentLine[j], "");
-                } else if (Arrays.asList(filenameWithPartsColumn).contains(getHeaderField(j))) {
+                } else if (StringUtils.indexOfAny(getHeaderField(j), filenameWithPartsColumn) >= 0 ) {
                     // filename__
                     //This file has extra parameters, such as being destined for a bundle, or specifying primary
                     String[] filenameParts = getHeaderField(j).split("__", 2);

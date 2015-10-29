@@ -56,7 +56,7 @@ SimpleArchiveFormat/
   item_...
 ```
 
-You can then import the SimpleArchiveFormat directory into DSpace as-is. Or you can import the ZIP file into portions of DSpace that enable Batch Import from Zip files.
+You can then import the SimpleArchiveFormat directory into DSpace as-is (see https://wiki.duraspace.org/display/DSDOC5x/Importing+and+Exporting+Items+via+Simple+Archive+Format for further information). Or you can import the ZIP file into portions of DSpace that enable Batch Import from Zip files.
 
 
 Other Things

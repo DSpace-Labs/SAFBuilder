@@ -7,7 +7,7 @@ See also: [Wiki entry on Simple Archive Format Packager](https://wiki.duraspace.
 To Install and generate an ItemImport package:
 
 ```bash
-git clone git://github.com/DSpace-Labs/SAFBuilder.git
+git clone https://github.com/DSpace-Labs/SAFBuilder.git
 cd SAFBuilder
 ./safbuilder.sh -c src/sample_data/AAA_batch-metadata.csv -z
 ```

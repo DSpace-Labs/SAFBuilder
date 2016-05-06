@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo "Recompiling SAFBuilder, just a moment..."
 mvn --quiet -DskipTests=true clean package
 

@@ -30,7 +30,7 @@ public class SAFPackage {
     // Storage of the csv data.
     private CsvReader inputCSV;
 
-    private final String simpleArchiveFormat = "SimpleArchiveFormat";
+    private String output_filename;
     
     //Set a a Symbolic Link for filesinstead of copying them
     private boolean symbolicLink = false;
@@ -39,7 +39,8 @@ public class SAFPackage {
      * Default constructor. Main method of this class is processMetaPack. The goal of this is to create a Simple Archive Format
      * package from input of files and csv metadata.
      */
-    public SAFPackage() {
+    public SAFPackage(String outputFilename) {
+        this.output_filename = outputFilename;
     }
 
     
@@ -138,8 +139,8 @@ public class SAFPackage {
     }
 
     public void exportToZip(String pathToDirectory) {
-        String safDirectory = pathToDirectory + "/" + simpleArchiveFormat;
-        String zipDest = pathToDirectory + "/" + simpleArchiveFormat + ".zip";
+        String safDirectory = pathToDirectory + "/" + output_filename;
+        String zipDest = pathToDirectory + "/" + output_filename + ".zip";
         try {
             ZipUtil.createZip(safDirectory, zipDest);
             System.out.println("ZIP file located at: " + new File(zipDest).getAbsolutePath());
@@ -153,7 +154,7 @@ public class SAFPackage {
      */
     private void prepareSimpleArchiveFormatDir() {
 
-        File newDirectory = new File(input.getPath() + "/" + simpleArchiveFormat);
+        File newDirectory = new File(input.getPath() + "/" + output_filename);
         if (newDirectory.exists()) {
             try {
                 FileUtils.deleteDirectory(newDirectory);
@@ -442,7 +443,7 @@ public class SAFPackage {
      * @return Absolute path to the newly created directory
      */
     private String makeNewDirectory(int itemNumber) {
-        File newDirectory = new File(input.getPath() + "/" + simpleArchiveFormat + "/item_" + itemNumber);
+        File newDirectory = new File(input.getPath() + "/" + output_filename + "/item_" + itemNumber);
         newDirectory.mkdir();
         return newDirectory.getAbsolutePath();
     }

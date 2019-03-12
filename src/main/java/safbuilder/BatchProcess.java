@@ -14,6 +14,7 @@ public class BatchProcess {
         options.addOption("m", "manifest", false, "Initialize a spreadsheet, a manifest listing all of the files in the directory, you must specify a CSV for -c ");
         options.addOption("s", "symbolicLink", false, "Set a Symbolic Link for bitstreams (instead of copying them)");
         options.addOption("z", "zip", false, "(optional) ZIP the output");
+        options.addOption("o", "output-name", true, "(optional) Name the output file");
 
         CommandLine commandLine = parser.parse(options, args);
 
@@ -23,7 +24,8 @@ public class BatchProcess {
             System.exit(0);
         }
 
-        SAFPackage safPackageInstance = new SAFPackage();
+        String outputName = commandLine.hasOption('o')? commandLine.getOptionValue('o') : "SimpleArchiveFormat";
+        SAFPackage safPackageInstance = new SAFPackage(outputName);
 
         if(commandLine.hasOption('m') && commandLine.hasOption('c')) {
             safPackageInstance.generateManifest(commandLine.getOptionValue('c'));

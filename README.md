@@ -26,6 +26,7 @@ usage: SAFBuilder
  -c,--csv <arg>   Filename with path of the CSV spreadsheet. This must be
                   in the same directory as the content files
  -h,--help        Display the Help
+ -o,--output-name (optional) Custom folder name for the output directory. Default: "SimpleArchiveFormat"
  -z,--zip         (optional) ZIP the output
  ```
 
@@ -35,7 +36,7 @@ Input
 A spreadsheet (.csv) with the following columns:
 * filename for the bitstream/file
 * metadata with namespace.element.(qualifer). Examples would be: dc.description or dc.contributor.author
-![Image of a sample input spreadsheet with metadata](https://wiki.duraspace.org/download/attachments/20809267/metadata-spreadsheet.png?version=1&modificationDate=1276806916424 "sample spreadsheet with metadata")
+![Image of a sample input spreadsheet with metadata](https://user-images.githubusercontent.com/58014/54175778-6e541a00-4462-11e9-9196-c3a3ae76f6e0.png "sample spreadsheet with metadata")
 
 
 Output
@@ -62,7 +63,7 @@ You can then import the SimpleArchiveFormat directory into DSpace as-is (see htt
 Other Things
 -----
 
-Author: Peter Dietz - [Longsight, DSpace Service & Hosting Provider](http://longsight.com)
+Author: Peter Dietz & DSpace Contributors
 
 Version History:
 

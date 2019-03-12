@@ -67,7 +67,9 @@ Author: Peter Dietz & DSpace Contributors
 
 Version History:
 
-* Current - Use -c to specify csv, and -z to indicate to zip the contents
+* Current 
+* v5 (2019-03-12) - Use -o to rename output directory
+* v4 (2016-05-06) - Use -c to specify csv, and -z to indicate to zip the contents
 * v3, v2, v1 - ./safbuilder.sh /path/to/parentDirectory file.csv
 
 Older versions of this tool required a space between the parent directory file path, and the filename of the CSV. The current version combines the path and the filename. It also allows the ability to ZIP the contents.

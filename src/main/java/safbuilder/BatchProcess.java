@@ -24,8 +24,12 @@ public class BatchProcess {
             System.exit(0);
         }
 
-        String outputName = commandLine.hasOption('o')? commandLine.getOptionValue('o') : "SimpleArchiveFormat";
-        SAFPackage safPackageInstance = new SAFPackage(outputName);
+        SAFPackage safPackageInstance;
+        if(commandLine.hasOption('o')) {
+            safPackageInstance = new SAFPackage(commandLine.getOptionValue('o'));
+        } else {
+            safPackageInstance = new SAFPackage();
+        }
 
         if(commandLine.hasOption('m') && commandLine.hasOption('c')) {
             safPackageInstance.generateManifest(commandLine.getOptionValue('c'));

@@ -12,16 +12,14 @@ import org.mozilla.universalchardet.UniversalDetector;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
-public class SAFPackage {
+class SAFPackage {
     private String seperatorRegex = "\\|\\|";   // Using double pipe || to separate multiple values in a field.
 
     // Directory on file system of this input collection
@@ -30,21 +28,27 @@ public class SAFPackage {
     // Storage of the csv data.
     private CsvReader inputCSV;
 
-    private String output_filename;
-    
-    //Set a a Symbolic Link for filesinstead of copying them
+    // Default outputFilename is "SimpleArchiveFormat", can be  overridden
+    private String outputFilename = "SimpleArchiveFormat";
+
+    //Set a a Symbolic Link for files instead of copying them
     private boolean symbolicLink = false;
 
     /**
      * Default constructor. Main method of this class is processMetaPack. The goal of this is to create a Simple Archive Format
      * package from input of files and csv metadata.
      */
-    public SAFPackage(String outputFilename) {
-        this.output_filename = outputFilename;
+    SAFPackage() {}
+
+    /**
+     * Constructor that allows you to set output directory
+     * @param outputFilename Custom directory name that SAF output goes to
+     */
+    SAFPackage(String outputFilename) {
+        this.outputFilename = outputFilename;
     }
 
-    
-    public void setSymbolicLink(boolean symbolicLink) {
+    void setSymbolicLink(boolean symbolicLink) {
         this.symbolicLink = symbolicLink;
     }
 
@@ -139,8 +143,8 @@ public class SAFPackage {
     }
 
     public void exportToZip(String pathToDirectory) {
-        String safDirectory = pathToDirectory + "/" + output_filename;
-        String zipDest = pathToDirectory + "/" + output_filename + ".zip";
+        String safDirectory = pathToDirectory + "/" + outputFilename;
+        String zipDest = pathToDirectory + "/" + outputFilename + ".zip";
         try {
             ZipUtil.createZip(safDirectory, zipDest);
             System.out.println("ZIP file located at: " + new File(zipDest).getAbsolutePath());
@@ -154,7 +158,7 @@ public class SAFPackage {
      */
     private void prepareSimpleArchiveFormatDir() {
 
-        File newDirectory = new File(input.getPath() + "/" + output_filename);
+        File newDirectory = new File(input.getPath() + "/" + outputFilename);
         if (newDirectory.exists()) {
             try {
                 FileUtils.deleteDirectory(newDirectory);
@@ -376,7 +380,7 @@ public class SAFPackage {
              */
             String[] filenameParts = (files[j].trim() + "__").split("__", 2);
             String currentFile = filenameParts[0];
-            
+
             /* This takes the parameters as specified at the header row and adds them to the
              * parameters for this individual file. The order is important here: by taking
              * the local parameters first, they are able to override the global params.
@@ -384,11 +388,11 @@ public class SAFPackage {
             String fileParameters = filenameParts[1] + "__" + globalFileParameters;
 
             try {
-                
+
                 //copying files
                 if (!symbolicLink) {
                     FileUtils.copyFileToDirectory(new File(input.getPath() + "/" + currentFile), new File(itemDirectory));
-                } 
+                }
                 //instead of copying them, set a symbolicLink
                 else {
                     Path pathLink = (new File(input.getPath() + "/" + currentFile)).toPath();
@@ -443,7 +447,7 @@ public class SAFPackage {
      * @return Absolute path to the newly created directory
      */
     private String makeNewDirectory(int itemNumber) {
-        File newDirectory = new File(input.getPath() + "/" + output_filename + "/item_" + itemNumber);
+        File newDirectory = new File(input.getPath() + "/" + outputFilename + "/item_" + itemNumber);
         newDirectory.mkdir();
         return newDirectory.getAbsolutePath();
     }

@@ -20,3 +20,5 @@ lib-files/
 SimpleArchiveFormat/
 
 .DS_Store
+
+.gradle

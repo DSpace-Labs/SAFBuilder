@@ -4,6 +4,16 @@ A tool that turns content files and a metadata spreadsheet into a Simple Archive
 
 See also: [Wiki entry on Simple Archive Format Packager](https://wiki.duraspace.org/display/DSPACE/Simple+Archive+Format+Packager "Simple Archive Format Package wiki entry")
 
+## Similar projects to also consider
+**This SAFBuilder tool is looking for a new maintainer & hasn't received updates in some time.**
+
+Other community projects/programs have been developed that also turn a CSV into a Simple Archive Format package. They include:
+* https://github.com/jcreel/SAFCreator
+* https://github.com/isido/saf-archiver
+* https://github.com/lib-uoguelph-ca/dspace-csv-archive
+
+
+## Installation / Usage
 To Install and generate an ItemImport package:
 
 ```bash

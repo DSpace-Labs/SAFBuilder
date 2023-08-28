@@ -34,6 +34,9 @@ class SAFPackage {
     //Set a a Symbolic Link for files instead of copying them
     private boolean symbolicLink = false;
 
+    // Formatstring for itemNumber used for creating the Zip - Entries based on number of CSV records
+    private String itemNumberFormatString = "%d";
+
     /**
      * Default constructor. Main method of this class is processMetaPack. The goal of this is to create a Simple Archive Format
      * package from input of files and csv metadata.
@@ -127,6 +130,8 @@ class SAFPackage {
 
         prepareSimpleArchiveFormatDir();
 
+        prepareItemNumberFormatString(pathToDirectory, metaFileName);
+
         processMetaHeader();
         processMetaBody();
 
@@ -135,6 +140,17 @@ class SAFPackage {
         }
 
         printFiles(0);                                                          // print a report of files not used
+    }
+
+    private void prepareItemNumberFormatString(String pathToDirectory, String metaFileName) throws IOException {
+        while (inputCSV.readRecord()) {
+            // loop needed to calculate number of data records
+        }
+        long numberOfDataRecords = inputCSV.getCurrentRecord();
+        if (numberOfDataRecords > 0) {
+            itemNumberFormatString = "%0" + String.valueOf(numberOfDataRecords).length() + "d";
+        }
+        openCSV(pathToDirectory, metaFileName);
     }
 
     public void processMetaPack(String pathToCSV, Boolean exportToZip) throws IOException {
@@ -447,7 +463,7 @@ class SAFPackage {
      * @return Absolute path to the newly created directory
      */
     private String makeNewDirectory(int itemNumber) {
-        File newDirectory = new File(input.getPath() + "/" + outputFilename + "/item_" + itemNumber);
+        File newDirectory = new File(input.getPath() + "/" + outputFilename + "/item_" + String.format(itemNumberFormatString, itemNumber));
         newDirectory.mkdir();
         return newDirectory.getAbsolutePath();
     }
